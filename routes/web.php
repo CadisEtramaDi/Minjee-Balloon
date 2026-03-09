@@ -44,7 +44,11 @@ Route::prefix('admin')->group(function () {
         Route::post('/inventory/{id}/mark-damage', [AdminController::class, 'inventoryMarkDamage'])->name('admin.inventory.mark-damage');
         Route::post('/inventory/{id}/restore-damage', [AdminController::class, 'inventoryRestoreDamage'])->name('admin.inventory.restore-damage');
         Route::delete('/inventory/{id}', [AdminController::class, 'inventoryDelete'])->name('admin.inventory.delete');
+        Route::post('/admin/inventory/{id}/add-stock', [AdminController::class, 'inventoryAddStock'])->name('admin.inventory.add-stock');
         
+        //Return Item
+        Route::post('/bookings/{id}/return', [AdminController::class, 'returnItems'])->name('admin.bookings.return');
+
         // Payment management
         Route::get('/payments', [PaymentController::class, 'index'])->name('admin.payments.index');
         Route::get('/bookings/{id}/payment/create', [PaymentController::class, 'create'])->name('admin.payments.create');

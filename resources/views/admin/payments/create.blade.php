@@ -59,7 +59,7 @@
                            step="0.01" 
                            min="0" 
                            max="{{ $remainingBalance }}"
-                           value="{{ old('amountpaid', $remainingBalance) }}" 
+                           value="{{ old('amountpaid', $totalPaid == 0 ? $booking->totalAmount * 0.50 : $remainingBalance) }}"
                            required>
                 </div>
                 @error('amountpaid')

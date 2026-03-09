@@ -76,14 +76,14 @@
                                 <div class="text-xs text-gray-400 mt-1">📍 {{ Str::limit($booking->customer->address, 30) }}</div>
                             </td>
                             <td class="py-4 px-6">
-                                <div class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($booking->eventdate)->format('M d, Y') }}</div>
-                                <div class="text-sm text-gray-500 mt-1">🕐 {{ date('g:i A', strtotime($booking->eventtime)) }}</div>
+                                <div class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($booking->eventDATE)->format('M d, Y') }}</div>
+                                <div class="text-sm text-gray-500 mt-1">🕐 {{ date('g:i A', strtotime($booking->timeStart)) }} - {{ date('g:i A', strtotime($booking->timeEND)) }}</div>
                             </td>
                             <td class="py-4 px-6">
-                                @if($booking->totalamount > 0)
-                                    <span class="font-semibold text-gray-900">${{ number_format($booking->totalamount, 2) }}</span>
+                                @if($booking->totalAmount > 0)
+                                    <span class="font-semibold text-gray-900">₱{{ number_format($booking->totalAmount, 2) }}</span>
                                 @else
-                                    <span class="text-gray-400 text-sm">Not set</span>
+                                    <span class="text-yellow-600 text-xs italic bg-yellow-50 px-2 py-1 rounded">Not set</span>
                                 @endif
                             </td>
                             <td class="py-4 px-6">

@@ -57,6 +57,12 @@
             </div>
 
             <div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Purchase Cost (₱) *</label>
+                    <input type="number" step="0.01" name="purchase_cost" required
+                        value="{{ old('purchase_cost', $item->purchase_cost ?? '') }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent">
+                </div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Rental Price (₱) *</label>
                 <input type="number" name="rentalPrice" required min="0" step="0.01"
                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent @error('rentalPrice') border-red-500 @enderror"

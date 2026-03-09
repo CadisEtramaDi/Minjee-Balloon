@@ -63,6 +63,12 @@ class AdminController extends Controller
             ->whereMonth('paymentdate', now()->month)
             ->sum('amountpaid');
 
+
+        // Find items that are running critically low (5 or fewer usable items)
+        $lowStockAlerts = \App\Models\Inventory::whereRaw('(quantityAvailable - quantityDamaged) <= 5')
+            ->where('status', 'Available')
+            ->get();
+
         return view('admin.dashboard', compact(
             'totalBookings',
             'pendingBookings',
@@ -71,7 +77,8 @@ class AdminController extends Controller
             'paidBookings',
             'recentBookings',
             'totalSales',
-            'monthSales'
+            'monthSales',
+            'lowStockAlerts'
         ));
     }
 
@@ -118,7 +125,7 @@ class AdminController extends Controller
     public function updateBookingStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,confirmed,cancelled,paid,Pending,Confirmed,Cancelled,Completed',
+            'status' => 'required|in:pending,confirmed,cancelled,paid,Pending,Confirmed,Cancelled,Completed,Awaiting Downpayment',
             'totalAmount' => 'nullable|numeric|min:0',
         ]);
 
@@ -132,8 +139,23 @@ class AdminController extends Controller
             $booking->totalAmount = $request->totalAmount;
         }
         
-        // Restore inventory quantities if booking is being cancelled
-        if ($newStatus === 'Cancelled' && $oldStatus !== 'Cancelled') {
+        // Reserve inventory when status moves into one of the "approved" states
+        if (in_array($newStatus, ['Awaiting Downpayment','Confirmed']) && !in_array($oldStatus, ['Awaiting Downpayment','Confirmed'])) {
+            $bookingItems = BookingItem::where('bookingID', $id)->get();
+            foreach ($bookingItems as $bookingItem) {
+                $inventoryItem = Inventory::find($bookingItem->itemID);
+                if ($inventoryItem) {
+                    $inventoryItem->quantityAvailable -= $bookingItem->quantity;
+                    if ($inventoryItem->quantityAvailable < 0) {
+                        $inventoryItem->quantityAvailable = 0; // safety
+                    }
+                    $inventoryItem->save();
+                }
+            }
+        }
+
+        // Restore inventory quantities if booking is being cancelled and it had reserved stock
+        if ($newStatus === 'Cancelled' && in_array($oldStatus, ['Awaiting Downpayment','Confirmed'])) {
             $bookingItems = BookingItem::where('bookingID', $id)->get();
             foreach ($bookingItems as $bookingItem) {
                 $inventoryItem = Inventory::find($bookingItem->itemID);
@@ -148,7 +170,9 @@ class AdminController extends Controller
 
         $message = 'Booking status updated successfully!';
         if ($booking->status === 'Confirmed') {
-            $message = 'Booking approved! You can now process payment.';
+            $message = 'Booking fully confirmed! You can now process the final payment.';
+        } elseif ($booking->status === 'Awaiting Downpayment') {
+            $message = 'Booking approved! Waiting for 50% downpayment.';
         } elseif ($booking->status === 'Cancelled') {
             $message = 'Booking cancelled and inventory quantities restored.';
         }
@@ -162,13 +186,15 @@ class AdminController extends Controller
     {
         $booking = Booking::findOrFail($id);
         
-        // Restore inventory quantities before deleting
-        $bookingItems = BookingItem::where('bookingID', $id)->get();
-        foreach ($bookingItems as $bookingItem) {
-            $inventoryItem = Inventory::find($bookingItem->itemID);
-            if ($inventoryItem) {
-                $inventoryItem->quantityAvailable += $bookingItem->quantity;
-                $inventoryItem->save();
+        // Restore inventory quantities before deleting (only if the booking actually reserved stock)
+        if (in_array($booking->status, ['Awaiting Downpayment','Confirmed'])) {
+            $bookingItems = BookingItem::where('bookingID', $id)->get();
+            foreach ($bookingItems as $bookingItem) {
+                $inventoryItem = Inventory::find($bookingItem->itemID);
+                if ($inventoryItem) {
+                    $inventoryItem->quantityAvailable += $bookingItem->quantity;
+                    $inventoryItem->save();
+                }
             }
         }
         
@@ -228,6 +254,7 @@ class AdminController extends Controller
             'itemName' => 'required|string|max:100',
             'category' => 'required|in:Tables,Dining Wares,Catering Equipment,Entertainment',
             'quantityAvailable' => 'required|integer|min:0',
+            'purchase_cost' => 'required|numeric|min:0',
             'rentalPrice' => 'required|numeric|min:0',
             'status' => 'required|in:Available,Damaged,Unavailable',
         ]);
@@ -236,6 +263,7 @@ class AdminController extends Controller
             'itemName',
             'category',
             'quantityAvailable',
+            'purchase_cost',
             'rentalPrice',
             'status',
         ]));
@@ -295,6 +323,7 @@ class AdminController extends Controller
             'itemName' => 'required|string|max:100',
             'category' => 'required|in:Tables,Dining Wares,Catering Equipment,Entertainment',
             'quantityAvailable' => 'required|integer|min:0',
+            'purchase_cost' => 'required|numeric|min:0',
             'rentalPrice' => 'required|numeric|min:0',
             'status' => 'required|in:Available,Damaged,Unavailable',
         ]);
@@ -304,6 +333,7 @@ class AdminController extends Controller
             'itemName',
             'category',
             'quantityAvailable',
+            'purchase_cost',
             'rentalPrice',
             'status',
         ]));
@@ -367,6 +397,29 @@ class AdminController extends Controller
         return back()->with('success', "{$damageQty} item(s) marked as damaged.");
     }
 
+    // Add new stock to existing inventory
+    public function inventoryAddStock(Request $request, $id)
+    {
+        $request->validate([
+            'addQuantity' => 'required|integer|min:1',
+        ]);
+
+        $item = Inventory::findOrFail($id);
+        $addedQty = (int) $request->addQuantity;
+
+        // Safely ADD to the existing quantity
+        $item->quantityAvailable += $addedQty;
+        
+        // If the status was Unavailable, make it Available again since we added stock!
+        if ($item->status === 'Unavailable') {
+            $item->status = 'Available';
+        }
+        
+        $item->save();
+
+        return back()->with('success', "{$addedQty} new item(s) successfully added! Total is now {$item->quantityAvailable}.");
+    }
+
     // Restore damaged items
     public function inventoryRestoreDamage(Request $request, $id)
     {
@@ -415,7 +468,8 @@ class AdminController extends Controller
             'timeEND' => 'required|date_format:H:i|after:timeStart',
             'eventLocation' => 'required|string',
             'totalAmount' => 'required|numeric|min:0',
-            'status' => 'required|in:Pending,Confirmed,Cancelled,Completed',
+            // allow awaiting downpayment during creation for consistency with status normalization
+            'status' => 'required|in:Pending,Awaiting Downpayment,Confirmed,Cancelled,Completed',
             'items' => 'nullable|array',
             'items.*' => 'nullable|integer|min:0',
             // New customer fields
@@ -455,7 +509,10 @@ class AdminController extends Controller
             $itemIds = array_keys($items);
             $inventoryLookup = Inventory::whereIn('itemID', $itemIds)->get()->keyBy('itemID');
 
-            // First, validate that all items have sufficient quantity and are not damaged
+            // The date the customer wants to rent the items
+            $eventDate = $request->eventDATE;
+
+            // First, validate that all items have sufficient quantity FOR THIS SPECIFIC DATE/TIME
             foreach ($items as $itemId => $quantity) {
                 $qty = (int) $quantity;
                 if ($qty <= 0) {
@@ -467,22 +524,31 @@ class AdminController extends Controller
                     continue;
                 }
 
-                // Check if item is damaged
-                if ($inventoryItem->status === 'Damaged') {
-                    return back()->withErrors([
-                        'items' => "Cannot book {$inventoryItem->itemName} because it is marked as damaged."
-                    ])->withInput();
-                }
+                // 1. How many of this item do we actually own and are not broken?
+                $totalUsable = $inventoryItem->quantityAvailable - $inventoryItem->quantityDamaged;
 
-                // Check if enough quantity is available
-                if ($inventoryItem->quantityAvailable < $qty) {
+                // 2. Find out how many of this item are ALREADY booked by other people on this day/time
+                $alreadyBookedQuantity = \App\Models\BookingItem::where('itemID', $itemId)
+                    ->whereHas('booking', function($query) use ($eventDate, $request) {
+                        $query->whereDate('eventDATE', $eventDate)
+                              ->where('timeStart', '<', $request->timeEND)
+                              ->where('timeEND', '>', $request->timeStart)
+                              ->whereIn('status', ['Pending', 'Awaiting Downpayment', 'Confirmed', 'Completed']); 
+                    })->sum('quantity');
+
+                // 3. Calculate what is actually left to rent for this specific interval
+                $availableForThisDate = $totalUsable - $alreadyBookedQuantity;
+
+                // 4. Block the booking if they ask for too many!
+                if ($qty > $availableForThisDate) {
+                    $formattedDate = \Carbon\Carbon::parse($eventDate)->format('M d, Y');
                     return back()->withErrors([
-                        'items' => "Insufficient quantity for {$inventoryItem->itemName}. Available: {$inventoryItem->quantityAvailable}, Requested: {$qty}"
+                        'items' => "Double Booking Alert! You only have {$availableForThisDate}x '{$inventoryItem->itemName}' available on {$formattedDate} between {$request->timeStart} and {$request->timeEND}. (Total owned: {$totalUsable}, Already booked this slot: {$alreadyBookedQuantity})"
                     ])->withInput();
                 }
             }
 
-            // Now create booking items and reduce inventory quantities
+            // Now create booking items and, if the booking isn't cancelled, reserve the stock
             foreach ($items as $itemId => $quantity) {
                 $qty = (int) $quantity;
                 if ($qty <= 0) {
@@ -503,14 +569,46 @@ class AdminController extends Controller
                     'subtotal' => $subtotal,
                 ]);
 
-                // Reduce inventory quantity
-                $inventoryItem->quantityAvailable -= $qty;
-                $inventoryItem->save();
+                // only decrement when the booking is actually being held
+                if (in_array($booking->status, ['Awaiting Downpayment','Confirmed'])) {
+                    $inventoryItem->quantityAvailable -= $qty;
+                    if ($inventoryItem->quantityAvailable < 0) {
+                        $inventoryItem->quantityAvailable = 0;
+                    }
+                    $inventoryItem->save();
+                }
             }
         }
 
         return redirect()->route('admin.bookings.show', $booking->bookingID)
             ->with('success', 'Booking created successfully!');
+    }
+
+    // Mark the event as finished and items returned
+    public function returnItems(Request $request, $id)
+    {
+        $booking = \App\Models\Booking::findOrFail($id);
+        
+        if ($booking->status === 'Completed') {
+            return back()->with('error', 'These items have already been marked as returned!');
+        }
+        
+        // Change the status to Completed and give the stock back
+        $booking->status = 'Completed';
+
+        // restore inventory on return
+        $bookingItems = BookingItem::where('bookingID', $id)->get();
+        foreach ($bookingItems as $bookingItem) {
+            $inventoryItem = Inventory::find($bookingItem->itemID);
+            if ($inventoryItem) {
+                $inventoryItem->quantityAvailable += $bookingItem->quantity;
+                $inventoryItem->save();
+            }
+        }
+
+        $booking->save();
+
+        return redirect()->back()->with('success', '✅ Event finished! Items marked as returned.');
     }
 
     // Check availability
@@ -526,7 +624,9 @@ class AdminController extends Controller
                 ->where('status', '!=', 'Cancelled');
 
             if ($request->filled('start_time') && $request->filled('end_time')) {
-                // Additional time-based filtering can be added here if needed
+                // Filter out bookings that do not overlap the requested time window
+                $query->where('timeStart', '<', $request->end_time)
+                      ->where('timeEND', '>', $request->start_time);
             }
 
             $bookings = $query->get();
@@ -534,6 +634,8 @@ class AdminController extends Controller
 
         return view('admin.availability.check', compact('bookings'));
     }
+    
+
 
     private function normalizeBookingStatus(string $status): ?string
     {
@@ -541,6 +643,7 @@ class AdminController extends Controller
 
         return match ($value) {
             'pending' => 'Pending',
+            'awaiting downpayment' => 'Awaiting Downpayment',
             'confirmed' => 'Confirmed',
             'cancelled' => 'Cancelled',
             'completed', 'paid' => 'Completed',

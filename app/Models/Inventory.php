@@ -15,6 +15,7 @@ class Inventory extends Model
         'quantityAvailable',
         'quantityDamaged',
         'rentalPrice',
+        'purchase_cost',
         'status',
     ];
 

@@ -113,55 +113,51 @@
 
         <!-- Inventory Items Section -->
         <div class="border-b pb-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Inventory Items</h3>
-
-            @if($inventoryItems->count() > 0)
-                <div class="border border-gray-200 rounded-lg overflow-hidden">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="text-left py-3 px-4 text-xs uppercase tracking-wide text-gray-600">Item</th>
-                                <th class="text-left py-3 px-4 text-xs uppercase tracking-wide text-gray-600">Category</th>
-                                <th class="text-left py-3 px-4 text-xs uppercase tracking-wide text-gray-600">Available for Booking</th>
-                                <th class="text-left py-3 px-4 text-xs uppercase tracking-wide text-gray-600">Price</th>
-                                <th class="text-left py-3 px-4 text-xs uppercase tracking-wide text-gray-600">Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            @foreach($inventoryItems as $item)
-                                @php
-                                    $availableQty = $item->quantityAvailable - $item->quantityDamaged;
-                                @endphp
-                                <tr>
-                                    <td class="py-3 px-4">
-                                        <div class="font-medium text-gray-900">{{ $item->itemName }}</div>
-                                        <div class="text-xs text-gray-500">#{{ $item->itemID }}</div>
-                                    </td>
-                                    <td class="py-3 px-4 text-sm text-gray-700">{{ $item->category }}</td>
-                                    <td class="py-3 px-4 text-sm text-gray-700">{{ $availableQty }}</td>
-                                    <td class="py-3 px-4 text-sm text-gray-900 font-semibold">₱{{ number_format($item->rentalPrice, 2) }}</td>
-                                    <td class="py-3 px-4">
-                                        <input type="number"
-                                               name="items[{{ $item->itemID }}]"
-                                               min="0"
-                                               max="{{ $availableQty }}"
-                                               placeholder="0"
-                                               value="{{ old('items.' . $item->itemID) }}"
-                                               data-price="{{ $item->rentalPrice }}"
-                                               class="quantity-input w-24 px-2 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent">
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <p class="text-xs text-gray-500 mt-2">Enter quantities for the items you want to include in this booking.</p>
-            @else
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-600">
-                    No inventory items available yet. Add items in Inventory first.
-                </div>
-            @endif
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Items to Book</h3>
+            <button type="button" onclick="toggleItemSelector()" class="text-sm px-3 py-1 bg-sky-100 text-[#0EA5E9] rounded-md hover:bg-sky-200 transition-colors font-medium border border-[#0EA5E9]">
+                + Add Item
+            </button>
         </div>
+
+        <div id="itemSelector" class="hidden mb-6 p-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select an item from Inventory:</label>
+            <select id="itemDropdown" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9]">
+                <option value="">-- Choose an Item --</option>
+                @foreach($inventoryItems as $item)
+                    @php $availableQty = $item->quantityAvailable - $item->quantityDamaged; @endphp
+                    @if($availableQty > 0)
+                        <option value="{{ $item->itemID }}" 
+                                data-name="{{ $item->itemName }}" 
+                                data-price="{{ $item->rentalPrice }}" 
+                                data-max="{{ $availableQty }}">
+                            {{ $item->itemName }} (₱{{ number_format($item->rentalPrice, 2) }} | Avail: {{ $availableQty }})
+                        </option>
+                    @endif
+                @endforeach
+            </select>
+            <button type="button" onclick="addItemToBooking()" class="mt-2 w-full py-2 bg-gray-800 text-white rounded-lg text-sm">Add to List</button>
+        </div>
+
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <table class="w-full" id="selectedItemsTable">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="text-left py-3 px-4 text-xs uppercase text-gray-600">Item</th>
+                        <th class="text-left py-3 px-4 text-xs uppercase text-gray-600">Price</th>
+                        <th class="text-left py-3 px-4 text-xs uppercase text-gray-600">Quantity</th>
+                        <th class="text-left py-3 px-4 text-xs uppercase text-gray-600">Total</th>
+                        <th class="text-left py-3 px-4 text-xs uppercase text-gray-600"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200" id="selectedItemsBody">
+                    <tr id="emptyRow">
+                        <td colspan="5" class="py-8 text-center text-gray-400 text-sm">No items added yet. Click "+ Add Item" to start.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>      
 
         <!-- Payment Section -->
         <div class="border-b pb-6">
@@ -184,6 +180,7 @@
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent @error('status') border-red-500 @enderror">
                         <option value="">Select Status</option>
                         <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="Awaiting Downpayment" {{ old('status') == 'Awaiting Downpayment' ? 'selected' : '' }}>Awaiting Downpayment</option>
                         <option value="Confirmed" {{ old('status') == 'Confirmed' ? 'selected' : '' }}>Confirmed</option>
                         <option value="Cancelled" {{ old('status') == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
                         <option value="Completed" {{ old('status') == 'Completed' ? 'selected' : '' }}>Completed</option>
@@ -243,118 +240,139 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const quantityInputs = document.querySelectorAll('.quantity-input');
-        const totalAmountField = document.getElementById('totalAmount');
-
-        function calculateTotal() {
-            let total = 0;
-            
-            quantityInputs.forEach(input => {
-                const quantity = parseInt(input.value) || 0;
-                const price = parseFloat(input.dataset.price) || 0;
-                total += quantity * price;
-            });
-
-            totalAmountField.value = total.toFixed(2);
-            document.getElementById('modalTotalAmount').textContent = total.toFixed(2);
-        }
-
-        // Add event listener to all quantity inputs
-        quantityInputs.forEach(input => {
-            input.addEventListener('input', calculateTotal);
-        });
-
-        // Update modal status when status select changes
-        const statusSelect = document.querySelector('select[name="status"]');
-        if (statusSelect) {
-            statusSelect.addEventListener('change', function() {
-                document.getElementById('modalStatus').textContent = this.value;
-            });
-        }
-
-        // Calculate initial total if there are old values
-        calculateTotal();
-    });
-
-    function openConfirmationModal() {
-        const modal = document.getElementById('confirmationModal');
-        modal.classList.remove('hidden');
+    // 1. Toggle the Item Selector Visibility
+    function toggleItemSelector() {
+        const selector = document.getElementById('itemSelector');
+        selector.classList.toggle('hidden');
     }
 
-    function closeConfirmationModal() {
-        const modal = document.getElementById('confirmationModal');
-        modal.classList.add('hidden');
-    }
-
-    function submitBookingForm(event) {
-        const form = document.getElementById('bookingForm');
+    // 2. Add Item to the Table
+    function addItemToBooking() {
+        const dropdown = document.getElementById('itemDropdown');
+        const selectedOption = dropdown.options[dropdown.selectedIndex];
         
-        if (!form) {
-            alert('Form not found. Please refresh the page and try again.');
+        if (!selectedOption.value) {
+            alert('Please select an item first.');
             return;
         }
 
-        // Disable confirm button to prevent double submission
+        const itemId = selectedOption.value;
+        const itemName = selectedOption.dataset.name;
+        const itemPrice = selectedOption.dataset.price;
+        const itemMax = selectedOption.dataset.max;
+
+        // Check if item already exists
+        if (document.getElementById(`row-${itemId}`)) {
+            alert('Item already added! Just adjust the quantity in the table.');
+            return;
+        }
+
+        // Remove the "Empty" placeholder row
+        const emptyRow = document.getElementById('emptyRow');
+        if (emptyRow) emptyRow.remove();
+
+        // Create new row with matching IDs and Classes
+        const rowHTML = `
+            <tr id="row-${itemId}" class="border-b border-gray-100">
+                <td class="py-3 px-4 font-medium text-gray-900">${itemName}</td>
+                <td class="py-3 px-4 text-sm text-gray-700">₱${parseFloat(itemPrice).toFixed(2)}</td>
+                <td class="py-3 px-4">
+                    <input type="number" name="items[${itemId}]" 
+                           class="quantity-input w-20 px-2 py-1 border border-gray-300 rounded-md" 
+                           value="1" min="1" max="${itemMax}" 
+                           data-price="${itemPrice}" oninput="calculateTotal()">
+                </td>
+                <td class="py-3 px-4 text-sm font-bold text-sky-600 row-total">₱${parseFloat(itemPrice).toFixed(2)}</td>
+                <td class="py-3 px-4 text-right">
+                    <button type="button" onclick="removeRow('${itemId}')" class="text-red-500 hover:text-red-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </td>
+            </tr>`;
+
+        document.getElementById('selectedItemsBody').insertAdjacentHTML('beforeend', rowHTML);
+        
+        calculateTotal();
+        toggleItemSelector(); // Hide the selector after adding
+        dropdown.selectedIndex = 0; // Reset dropdown
+    }
+
+    // 3. Remove Item from the Table
+    function removeRow(id) {
+        const row = document.getElementById(`row-${id}`);
+        if (row) row.remove();
+
+        // If no rows left, show the "Empty" message again
+        const tbody = document.getElementById('selectedItemsBody');
+        if (tbody.children.length === 0) {
+            tbody.innerHTML = `
+                <tr id="emptyRow">
+                    <td colspan="5" class="py-8 text-center text-gray-400 text-sm">No items added yet. Click "+ Add Item" to start.</td>
+                </tr>`;
+        }
+        calculateTotal();
+    }
+
+    // 4. Calculate Grand Total
+    function calculateTotal() {
+        let grandTotal = 0;
+        const inputs = document.querySelectorAll('.quantity-input');
+        
+        inputs.forEach(input => {
+            const row = input.closest('tr');
+            const qty = parseInt(input.value) || 0;
+            const price = parseFloat(input.dataset.price) || 0;
+            const rowTotal = qty * price;
+            
+            // Update individual row total display
+            const rowTotalDisplay = row.querySelector('.row-total');
+            if (rowTotalDisplay) rowTotalDisplay.textContent = '₱' + rowTotal.toFixed(2);
+            
+            grandTotal += rowTotal;
+        });
+
+        // Update Hidden/Main input and Modal display
+        const totalInput = document.getElementById('totalAmount');
+        const modalTotal = document.getElementById('modalTotalAmount');
+        
+        if (totalInput) totalInput.value = grandTotal.toFixed(2);
+        if (modalTotal) modalTotal.textContent = grandTotal.toFixed(2);
+    }
+
+    // 5. Modal Controls
+    function openConfirmationModal() {
+        // Sync the status dropdown value to the modal text
+        const statusSelect = document.querySelector('select[name="status"]');
+        const modalStatus = document.getElementById('modalStatus');
+        if (statusSelect && modalStatus) {
+            modalStatus.textContent = statusSelect.value || 'Pending';
+        }
+        
+        document.getElementById('confirmationModal').classList.remove('hidden');
+    }
+
+    function closeConfirmationModal() {
+        document.getElementById('confirmationModal').classList.add('hidden');
+    }
+
+    // 6. Submit Form
+    function submitBookingForm(event) {
+        const form = document.getElementById('bookingForm');
         const confirmBtn = event.target;
+
+        // Visual feedback
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Creating...';
 
-        // Create FormData object which properly handles multipart/form-data and includes CSRF token
-        const formData = new FormData(form);
-
-        // Submit the form
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => {
-            // Handle redirects
-            if (response.redirected) {
-                window.location.href = response.url;
-                return;
-            }
-            
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.status);
-            }
-            
-            return response.text();
-        })
-        .then(html => {
-            // If we got here and it's HTML, we likely have an error
-            if (html && (html.includes('<!DOCTYPE') || html.includes('<html'))) {
-                // Check if there are validation errors
-                if (html.includes('error') || html.includes('Error')) {
-                    alert('An error occurred. Please check the form and try again.');
-                }
-                document.body.innerHTML = html;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while creating the booking: ' + error.message);
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = 'Confirm Booking';
-        });
+        form.submit();
     }
 
-    // Close modal when clicking outside
-    document.getElementById('confirmationModal')?.addEventListener('click', function(event) {
-        if (event.target === this) {
+    // Close modal when clicking background
+    window.onclick = function(event) {
+        const modal = document.getElementById('confirmationModal');
+        if (event.target == modal) {
             closeConfirmationModal();
         }
-    });
-
-    // Close modal with Escape key
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            closeConfirmationModal();
-        }
-    });
+    }
 </script>
 @endsection

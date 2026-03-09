@@ -23,9 +23,9 @@ class PaymentController extends Controller
     {
         $booking = Booking::with('customer')->findOrFail($bookingId);
         
-        // Check if booking is approved
-        if (strtolower($booking->status) !== 'confirmed') {
-            return redirect()->back()->with('error', 'Booking must be approved before payment.');
+        // Check if booking is ready for payment
+        if (!in_array(strtolower($booking->status), ['confirmed', 'awaiting downpayment'])) {
+            return redirect()->back()->with('error', 'Booking must be approved (Awaiting Downpayment) or Confirmed before payment.');
         }
         
         // Calculate remaining balance
@@ -51,14 +51,25 @@ class PaymentController extends Controller
 
         Payment::create($validated);
 
-        // Check if booking is fully paid
+        // Calculate the total paid including this new payment
         $totalPaid = $booking->payments()->sum('amountpaid');
+        $requiredDownpayment = $booking->totalAmount * 0.50; // 50% rule
+
+        // Check if booking is fully paid
         if ($totalPaid >= $booking->totalAmount) {
             $booking->update(['status' => 'Completed']);
+            $statusMessage = 'Payment recorded! Booking is fully paid and status updated to Completed.';
+        } 
+        // Check if 50% downpayment is reached AND they are currently waiting for downpayment
+        elseif ($totalPaid >= $requiredDownpayment && strtolower($booking->status) === 'awaiting downpayment') {
+            $booking->update(['status' => 'Confirmed']);
+            $statusMessage = 'Payment recorded! 50% downpayment reached. Booking is now Confirmed.';
+        } else {
+            $statusMessage = 'Payment recorded successfully!';
         }
 
         return redirect()->route('admin.bookings.show', $bookingId)
-            ->with('success', 'Payment recorded successfully!');
+            ->with('success', $statusMessage);
     }
 
     // Show payment details

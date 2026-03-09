@@ -21,7 +21,6 @@ return new class extends Migration
             $table->enum('status', ['Pending', 'Confirmed', 'Cancelled', 'Completed'])->default('Pending');
             $table->decimal('totalAmount', 10, 2);
             $table->timestamps();
-
             $table->foreign('customerID')->references('customerID')->on('customers')->onDelete('cascade');
         });
     }

@@ -87,7 +87,7 @@
                                             {{ \Carbon\Carbon::parse($booking->timeStart)->format('H:i') }} - {{ \Carbon\Carbon::parse($booking->timeEND)->format('H:i') }}
                                         </td>
                                         <td class="py-3 px-4 text-sm text-gray-600">
-                                            {{ Str::limit($booking->evenLocation, 30) }}
+                                            {{ Str::limit($booking->eventLocation, 30) }}
                                         </td>
                                         <td class="py-3 px-4 text-sm">
                                             @php

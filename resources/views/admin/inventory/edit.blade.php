@@ -51,10 +51,17 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Quantity Available *</label>
                 <input type="number" name="quantityAvailable" required min="0"
                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent @error('quantityAvailable') border-red-500 @enderror"
-                       value="{{ old('quantityAvailable', $item->quantityAvailable) }}">
+                       value="{{ old('quantityAvailable', $item->quantityAvailable) }}" readonly>
                 @error('quantityAvailable')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Purchase Cost (₱) *</label>
+                <input type="number" step="0.01" name="purchase_cost" required
+                    value="{{ old('purchase_cost', $item->purchase_cost ?? '') }}"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent">
             </div>
 
             <div>

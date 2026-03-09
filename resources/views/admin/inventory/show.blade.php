@@ -12,6 +12,10 @@
         <a href="{{ route('admin.inventory.edit', $item->itemID) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm font-semibold">
             Edit Item
         </a>
+
+        <button onclick="openAddStockModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm font-semibold shadow-sm">
+            + Add Stock
+        </button>
         
         @if($item->quantityDamaged < $item->quantityAvailable)
         <button onclick="openMarkDamageModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500 text-black rounded-md hover:bg-yellow-600 transition-colors text-sm font-semibold">
@@ -24,6 +28,7 @@
             Restore Damaged Items
         </button>
         @endif
+        
         
         @if($item->status !== 'Unavailable')
         <form method="POST" action="{{ route('admin.inventory.update-status', $item->itemID) }}" style="display:inline;">
@@ -102,6 +107,12 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Available for Booking</label>
                     <p class="text-gray-900 font-medium text-lg {{ $item->quantityAvailable - $item->quantityDamaged > 0 ? 'text-green-600' : 'text-red-600' }}">
                         {{ $item->quantityAvailable - $item->quantityDamaged }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1">Purchase Cost</p>
+                    <p class="text-lg font-semibold text-gray-900">
+                        ₱{{ number_format($item->purchase_cost ?? 0, 2) }}
                     </p>
                 </div>
                 <div>
@@ -184,6 +195,30 @@
         </div>
     </div>
 
+    @php
+    $profit = $item->totalRevenue - $item->purchase_cost;
+    $isProfitable = $profit >= 0;
+    @endphp
+
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 {{ $isProfitable ? 'border-green-500' : 'border-red-500' }}">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full {{ $isProfitable ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' }}">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="ml-4">
+                <h2 class="text-sm font-medium text-gray-600">Return on Investment (ROI)</h2>
+                <p class="text-2xl font-bold {{ $isProfitable ? 'text-green-600' : 'text-red-600' }}">
+                    ₱{{ number_format($profit, 2) }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                    Cost: ₱{{ number_format($item->purchase_cost, 2) }}
+                </p>
+            </div>
+        </div>
+    </div>
+
     <div class="lg:col-span-1">
         <div class="bg-white rounded-xl shadow-md p-6 mb-6">
             <h3 class="text-lg font-bold text-gray-900 mb-4">Item Summary</h3>
@@ -211,6 +246,31 @@
                 <li>Rental totals reflect booking item subtotals.</li>
             </ul>
         </div>
+    </div>
+</div>
+
+<!-- Stockin Modal -->
+<div id="addStockModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Add New Stock</h3>
+        <p class="text-gray-600 mb-4">How many new <span class="font-semibold">{{ $item->itemName }}</span> did you purchase or acquire?</p>
+        
+        <form action="{{ route('admin.inventory.add-stock', $item->itemID) }}" method="POST">
+            @csrf
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Quantity to Add</label>
+                <input type="number" name="addQuantity" min="1" required placeholder="e.g., 10"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button type="button" onclick="closeAddStockModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-semibold">
+                    Confirm Stock In
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -277,6 +337,14 @@
 </div>
 
 <script>
+function openAddStockModal() {
+    document.getElementById('addStockModal').classList.remove('hidden');
+}
+
+function closeAddStockModal() {
+    document.getElementById('addStockModal').classList.add('hidden');
+}
+
 function openMarkDamageModal() {
     document.getElementById('markDamageModal').classList.remove('hidden');
 }
@@ -297,12 +365,16 @@ function closeRestoreDamageModal() {
 document.addEventListener('click', function(event) {
     const markDamageModal = document.getElementById('markDamageModal');
     const restoreDamageModal = document.getElementById('restoreDamageModal');
+    const addStockModal = document.getElementById('addStockModal');
     
     if (event.target === markDamageModal) {
         closeMarkDamageModal();
     }
     if (event.target === restoreDamageModal) {
         closeRestoreDamageModal();
+    }
+    if (event.target === addStockModal) {
+        closeAddStockModal();
     }
 });
 </script>

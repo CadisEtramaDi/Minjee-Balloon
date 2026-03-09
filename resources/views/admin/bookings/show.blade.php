@@ -12,6 +12,22 @@
     </a>
 </div>
 
+@if($errors->any())
+    <div class="mb-6 bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
+        <div class="flex items-center mb-2">
+            <svg class="w-6 h-6 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-red-800 font-medium">Please fix the following errors:</p>
+        </div>
+        <ul class="list-disc list-inside text-red-700 text-sm ml-9">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 @if(session('success'))
     <div class="mb-6 bg-green-50 border-l-4 border-green-500 rounded-lg p-4">
         <div class="flex items-center">
@@ -29,7 +45,7 @@
             <svg class="w-6 h-6 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <p class="text-red-800 font-medium">{{ session('error') }}</p>
+            <p class="text-red-700 font-medium">{{ session('error') }}</p> 
         </div>
     </div>
 @endif
@@ -86,16 +102,21 @@
                         </h3>
                         <div class="space-y-3">
                             <div>
-                                <p class="text-sm text-gray-500 mb-1">Event Date</p>
-                                <p class="font-medium text-gray-900">{{ $booking->eventDATE->format('F d, Y') }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">Event Time</p>
-                                <p class="font-medium text-gray-900">{{ date('h:i A', strtotime($booking->timeStart)) }} - {{ date('h:i A', strtotime($booking->timeEND)) }}</p>
+                                <p class="text-sm text-gray-500 mb-1">Event Date & Time</p>
+                                <p class="font-medium text-gray-900">
+                                    {{ \Carbon\Carbon::parse($booking->eventDATE)->format('F d, Y') }} 
+                                    <br>
+                                    <span class="text-sm text-gray-600">
+                                        {{ \Carbon\Carbon::parse($booking->timeStart)->format('h:i A') }} 
+                                        @if($booking->timeEnd)
+                                            - {{ \Carbon\Carbon::parse($booking->timeEnd)->format('h:i A') }}
+                                        @endif
+                                    </span>
+                                </p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Location</p>
-                                <p class="font-medium text-gray-900">{{ $booking->evenLocation }}</p>
+                                <p class="font-medium text-gray-900">{{ $booking->eventLocation }}</p>
                             </div>
                         </div>
                     </div>
@@ -112,7 +133,13 @@
                     <div class="bg-gray-50 rounded-lg p-4 space-y-2">
                         <div class="flex justify-between items-center">
                             <span class="text-gray-700">Total Amount:</span>
-                            <span class="font-bold text-gray-900 text-lg">₱{{ number_format($booking->totalAmount, 2) }}</span>
+                            <span class="font-bold text-gray-900 text-lg">
+                                @if($booking->totalAmount > 0)
+                                    ₱{{ number_format($booking->totalAmount, 2) }}
+                                @else
+                                    <span class="text-yellow-600 text-sm font-medium italic bg-yellow-50 px-2 py-1 rounded">Amount not set yet</span>
+                                @endif
+                            </span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-gray-700">Amount Paid:</span>
@@ -123,6 +150,18 @@
                             <span class="font-bold text-lg {{ $remainingBalance > 0 ? 'text-red-600' : 'text-green-600' }}">
                                 ₱{{ number_format($remainingBalance, 2) }}
                             </span>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            @php
+                                $progress = $booking->totalAmount > 0 ? min(100, round(($totalPaid / $booking->totalAmount) * 100)) : 0;
+                            @endphp
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium text-gray-700">Payment Progress</span>
+                                <span class="font-bold {{ $progress >= 100 ? 'text-green-600' : 'text-[#0EA5E9]' }}">{{ $progress }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="h-2.5 rounded-full transition-all duration-500 {{ $progress >= 100 ? 'bg-green-500' : 'bg-[#0EA5E9]' }}" style="width: {{ $progress }}%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -219,7 +258,7 @@
                         @enderror
                     </div>
 
-                    <input type="hidden" name="status" value="Confirmed">
+                    <input type="hidden" name="status" value="Awaiting Downpayment">
 
                     <button type="submit" class="w-full px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-md flex items-center justify-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,7 +280,7 @@
                 <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
             </div>
             <div class="p-4 space-y-3">
-                @if($booking->status === 'Confirmed' || $booking->status === 'Completed')
+                @if(in_array($booking->status, ['Awaiting Downpayment', 'Confirmed', 'Completed']))
                     <a href="{{ route('admin.payments.create', $booking->bookingID) }}" 
                        style="display: block; width: 100%; padding: 12px 16px; background-color: #0EA5E9; color: white; border-radius: 8px; font-weight: 600; text-align: center; text-decoration: none;">
                         💰 Add Payment
@@ -252,6 +291,15 @@
                    style="display: block; width: 100%; padding: 12px 16px; background-color: #16a34a; color: white; border-radius: 8px; font-weight: 600; text-align: center; text-decoration: none;">
                     📞 Call Customer
                 </a>
+
+                @if($booking->status === 'Confirmed')
+                <form action="{{ route('admin.bookings.return', $booking->bookingID) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded-lg">
+                        Mark Items Returned
+                    </button>
+                </form>
+                @endif
 
                 @if($booking->status === 'pending')
                     <div style="background-color: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px; text-align: center;">
@@ -278,6 +326,7 @@
                         <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Change Status</label>
                         <select name="status" id="status" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent transition-all" required>
                             <option value="pending" {{ $booking->status === 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="Awaiting Downpayment" {{ $booking->status === 'Awaiting Downpayment' ? 'selected' : '' }}>Awaiting Downpayment</option>
                             <option value="confirmed" {{ $booking->status === 'confirmed' ? 'selected' : '' }}>Confirmed</option>
                             <option value="cancelled" {{ $booking->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                             <option value="paid" {{ $booking->status === 'paid' ? 'selected' : '' }}>Paid</option>
@@ -301,10 +350,13 @@
                 <h3 class="text-lg font-semibold">Event Countdown</h3>
             </div>
             <div class="p-6 text-center">
+                
                 @php
                     $eventDate = $booking->eventDATE;
                     if ($eventDate) {
-                        $daysUntil = (int) now()->startOfDay()->diffInDays($eventDate->startOfDay(), false);
+                        // Force it to be a Carbon date object first!
+                        $parsedDate = \Carbon\Carbon::parse($eventDate);
+                        $daysUntil = (int) now()->startOfDay()->diffInDays($parsedDate->startOfDay(), false);
                     } else {
                         $daysUntil = 0;
                     }
