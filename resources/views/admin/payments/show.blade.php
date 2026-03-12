@@ -32,6 +32,12 @@
                     {{ ucfirst(str_replace('_', ' ', $payment->paymentmethod)) }}
                 </span>
             </div>
+            @if($payment->reference_number)
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">Reference Number:</span>
+                <span class="font-medium text-gray-900">{{ $payment->reference_number }}</span>
+            </div>
+            @endif
             <div class="flex justify-between items-center">
                 <span class="text-gray-600">Status:</span>
                 <span>

@@ -3,17 +3,9 @@
 @section('title', 'Manage Inventory')
 
 @section('content')
-<div class="mb-8 flex items-center justify-between">
-    <div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Manage Inventory</h1>
-        <p class="text-gray-600">Track items, availability, and rental pricing</p>
-    </div>
-    <a href="{{ route('admin.inventory.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#0EA5E9] text-white rounded-lg hover:bg-sky-600 transition-colors font-medium">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        Add Item
-    </a>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Manage Inventory</h1>
+    <p class="text-gray-600">Track items, availability, and rental pricing</p>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -201,6 +193,39 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Damaged Items Card -->
+        <div class="bg-white rounded-2xl p-6 mt-6 shadow-md border-l-4 border-orange-500">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <p class="text-gray-600 text-xs font-bold uppercase tracking-widest">Damaged Items</p>
+                    <p class="text-4xl font-bold text-gray-900 mt-3">{{ $damagedItems->sum('quantityDamaged') }}</p>
+                </div>
+                <div class="bg-orange-100 rounded-2xl p-5">
+                    <svg class="w-10 h-10 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5 19h14a2 2 0 001.732-3L13.732 4a2 2 0 00-3.464 0L3.268 16A2 2 0 005 19z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            @if($damagedItems->count() > 0)
+                <div class="border-t border-gray-200 pt-4 space-y-3">
+                    @foreach($damagedItems as $damaged)
+                        <div class="flex items-center justify-between text-sm">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ $damaged->itemName }}</p>
+                                <p class="text-xs text-gray-500">{{ $damaged->category }}</p>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                {{ $damaged->quantityDamaged }} damaged
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-sm text-gray-500 border-t border-gray-200 pt-4">No damaged items currently.</p>
+            @endif
         </div>
 
         <!-- Inventory Tips Section -->

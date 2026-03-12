@@ -92,62 +92,105 @@
 
     <div class="lg:col-span-1">
         <div class="space-y-4">
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+            <!-- Total Customers Card -->
+            <div class="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border-l-4 border-blue-500">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-blue-600 font-medium">Total Customers</p>
-                        <p class="text-3xl font-bold text-blue-900 mt-1">{{ $totalCustomers }}</p>
+                        <p class="text-gray-600 text-xs font-bold uppercase tracking-widest">Total Customers</p>
+                        <p class="text-4xl font-bold text-gray-900 mt-3">{{ $totalCustomers }}</p>
                     </div>
-                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM5 20h10v-2a7 7 0 00-10 0v2z"></path>
-                    </svg>
+                    <div class="bg-blue-100 rounded-2xl p-5">
+                        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM5 20h10v-2a7 7 0 00-10 0v2z"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+            <!-- Active Bookings Card -->
+            <div class="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border-l-4 border-green-500">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-green-600 font-medium">Active Bookings</p>
-                        <p class="text-3xl font-bold text-green-900 mt-1">{{ $activeBookings }}</p>
+                        <p class="text-gray-600 text-xs font-bold uppercase tracking-widest">Active Bookings</p>
+                        <p class="text-4xl font-bold text-gray-900 mt-3">{{ $activeBookings }}</p>
                     </div>
-                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
+                    <div class="bg-green-100 rounded-2xl p-5">
+                        <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+            <!-- Pending Payments Card -->
+            <div class="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all border-l-4 border-purple-500">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-purple-600 font-medium">Pending Payments</p>
-                        <p class="text-3xl font-bold text-purple-900 mt-1">{{ $pendingPayments }}</p>
+                        <p class="text-gray-600 text-xs font-bold uppercase tracking-widest">Pending Payments</p>
+                        <p class="text-4xl font-bold text-gray-900 mt-3">{{ $pendingPayments }}</p>
                     </div>
-                    <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
+                    <div class="bg-purple-100 rounded-2xl p-5">
+                        <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-sky-50 border border-sky-200 rounded-xl p-6 mt-6">
-            <h3 class="font-semibold text-sky-900 mb-3 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                How to Manage
-            </h3>
-            <ul class="text-sm text-sky-800 space-y-2">
-                <li class="flex items-start">
-                    <span class="font-bold mr-2">1.</span>
-                    <span>Use the search bar to find customers by name, phone, or address</span>
+        <!-- Customer Tips Section -->
+        <div class="bg-white rounded-2xl p-8 mt-6 shadow-md border-l-4 border-blue-500">
+            <div class="flex items-center mb-8 pb-6 border-b border-gray-200">
+                <div class="bg-blue-100 rounded-full p-3 mr-4">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="font-bold text-gray-900 text-xl">How to Manage</h3>
+            </div>
+            
+            <ul class="space-y-4">
+                <li class="flex items-start group">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-blue-500 text-white font-bold group-hover:bg-blue-600 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold text-gray-900 text-sm leading-5">Search Customers</p>
+                        <p class="text-gray-600 text-sm mt-1">Use the search bar to find customers by name, phone, or address.</p>
+                    </div>
                 </li>
-                <li class="flex items-start">
-                    <span class="font-bold mr-2">2.</span>
-                    <span>Open a profile to view full booking history and payments</span>
+
+                <li class="flex items-start group">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-amber-500 text-white font-bold group-hover:bg-amber-600 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold text-gray-900 text-sm leading-5">View Customer Profile</p>
+                        <p class="text-gray-600 text-sm mt-1">Open a profile to view full booking history and payments.</p>
+                    </div>
                 </li>
-                <li class="flex items-start">
-                    <span class="font-bold mr-2">3.</span>
-                    <span>Create new customers through the booking creation form</span>
+
+                <li class="flex items-start group">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center justify-center h-10 w-10 rounded-lg bg-green-500 text-white font-bold group-hover:bg-green-600 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="font-semibold text-gray-900 text-sm leading-5">Add New Customers</p>
+                        <p class="text-gray-600 text-sm mt-1">Create new customers through the booking creation form.</p>
+                    </div>
                 </li>
             </ul>
         </div>

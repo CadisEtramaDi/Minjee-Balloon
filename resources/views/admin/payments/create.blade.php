@@ -49,23 +49,14 @@
             @csrf
 
             <div>
-                <label for="amountpaid" class="block text-sm font-medium text-gray-700 mb-2">Amount to Pay *</label>
-                <div class="relative">
-                    <span class="absolute left-3 top-3 text-gray-500">₱</span>
-                    <input type="number" 
-                           class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent @error('amountpaid') border-red-500 @enderror" 
-                           id="amountpaid" 
-                           name="amountpaid" 
-                           step="0.01" 
-                           min="0" 
-                           max="{{ $remainingBalance }}"
-                           value="{{ old('amountpaid', $totalPaid == 0 ? $booking->totalAmount * 0.50 : $remainingBalance) }}"
-                           required>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Amount to Pay</label>
+                <div class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-lg font-bold text-gray-900">
+                    ₱{{ number_format($remainingBalance, 2) }}
                 </div>
+                <input type="hidden" name="amountpaid" value="{{ $remainingBalance }}">
                 @error('amountpaid')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <p class="mt-1 text-sm text-gray-500">Maximum: ₱{{ number_format($remainingBalance, 2) }}</p>
             </div>
 
             <div>
@@ -90,8 +81,22 @@
                     <option value="">Select Payment Method</option>
                     <option value="cash" {{ old('paymentmethod') == 'cash' ? 'selected' : '' }}>Cash</option>
                     <option value="gcash" {{ old('paymentmethod') == 'gcash' ? 'selected' : '' }}>GCash</option>
+                    <option value="bank_transfer" {{ old('paymentmethod') == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
                 </select>
                 @error('paymentmethod')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div id="referenceNumberField" style="display: none;">
+                <label for="reference_number" class="block text-sm font-medium text-gray-700 mb-2">Reference Number</label>
+                <input type="text" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent @error('reference_number') border-red-500 @enderror" 
+                       id="reference_number" 
+                       name="reference_number" 
+                       value="{{ old('reference_number') }}"
+                       placeholder="Enter reference/transaction number">
+                @error('reference_number')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
@@ -102,9 +107,8 @@
                         id="status" 
                         name="status" 
                         required>
+                    <option value="partially" {{ old('status') == 'partially' ? 'selected' : '' }}>Partially</option>
                     <option value="completed" {{ old('status', 'completed') == 'completed' ? 'selected' : '' }}>Completed</option>
-                    <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="failed" {{ old('status') == 'failed' ? 'selected' : '' }}>Failed</option>
                 </select>
                 @error('status')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -126,4 +130,18 @@
         </form>
     </div>
 </div>
+
+<script>
+    function toggleReferenceField() {
+        var method = document.getElementById('paymentmethod').value;
+        var refField = document.getElementById('referenceNumberField');
+        if (method === 'gcash' || method === 'bank_transfer') {
+            refField.style.display = 'block';
+        } else {
+            refField.style.display = 'none';
+        }
+    }
+    document.getElementById('paymentmethod').addEventListener('change', toggleReferenceField);
+    toggleReferenceField();
+</script>
 @endsection

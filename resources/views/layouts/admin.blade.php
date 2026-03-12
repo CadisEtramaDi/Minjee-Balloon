@@ -46,9 +46,18 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                     </svg>
                     <span class="flex-1 text-left">Bookings</span>
+                    <svg id="bookings-arrow" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
                 </button>
 
                 <div id="bookings-menu" class="hidden space-y-2 mt-2">
+                    <a href="{{ route('admin.bookings.index') }}" class="flex items-center px-4 py-3 ml-4 text-sm {{ request()->routeIs('admin.bookings.index') ? 'text-[#0EA5E9] font-medium' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                        </svg>
+                        Manage Bookings
+                    </a>
                     <a href="{{ route('admin.bookings.create') }}" class="flex items-center px-4 py-3 ml-4 text-sm {{ request()->routeIs('admin.bookings.create') ? 'text-[#0EA5E9] font-medium' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -70,25 +79,42 @@
                     Customers
                 </a>
 
-                <a href="{{ route('admin.inventory.index') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.inventory.*') ? 'bg-sky-100 text-[#0EA5E9]' : 'text-gray-700 hover:bg-gray-100' }}">
+                <button type="button" onclick="toggleInventoryMenu()" class="w-full flex items-center px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-100">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6m16 0v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4m16 0H4m8-6v6"></path>
                     </svg>
-                    Inventory
-                </a>
+                    <span class="flex-1 text-left">Inventory</span>
+                    <svg id="inventory-arrow" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <div id="inventory-menu" class="hidden space-y-2 mt-2">
+                    <a href="{{ route('admin.inventory.index') }}" class="flex items-center px-4 py-3 ml-4 text-sm {{ request()->routeIs('admin.inventory.index') ? 'text-[#0EA5E9] font-medium' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                        </svg>
+                        Manage Inventory
+                    </a>
+                    <a href="{{ route('admin.inventory.stock-in') }}" class="flex items-center px-4 py-3 ml-4 text-sm {{ request()->routeIs('admin.inventory.stock-in') ? 'text-[#0EA5E9] font-medium' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Stock In
+                    </a>
+                    <a href="{{ route('admin.inventory.stock-out') }}" class="flex items-center px-4 py-3 ml-4 text-sm {{ request()->routeIs('admin.inventory.stock-out') ? 'text-[#0EA5E9] font-medium' : 'text-gray-700 hover:bg-gray-100' }} rounded-lg transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                        </svg>
+                        Stock Out
+                    </a>
+                </div>
 
                 <a href="{{ route('admin.payments.index') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.payments.*') ? 'bg-sky-100 text-[#0EA5E9]' : 'text-gray-700 hover:bg-gray-100' }}">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                     Payments
-                </a>
-
-                <a href="{{ route('admin.revenue.index') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.revenue.*') ? 'bg-sky-100 text-[#0EA5E9]' : 'text-gray-700 hover:bg-gray-100' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    Revenue
                 </a>
 
                 <a href="{{ route('admin.reports.sales') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.reports.*') ? 'bg-sky-100 text-[#0EA5E9]' : 'text-gray-700 hover:bg-gray-100' }}">
@@ -127,12 +153,28 @@
             arrow.style.transform = menu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
         }
 
-        // Keep dropdown open if on a bookings route
+        function toggleInventoryMenu() {
+            const menu = document.getElementById('inventory-menu');
+            const arrow = document.getElementById('inventory-arrow');
+            
+            menu.classList.toggle('hidden');
+            arrow.style.transform = menu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
+        // Keep dropdown open if on a bookings or inventory route
         document.addEventListener('DOMContentLoaded', function() {
             const onBookingsRoute = @json(request()->routeIs('admin.bookings.*', 'admin.availability.*'));
             if (onBookingsRoute) {
                 const menu = document.getElementById('bookings-menu');
                 const arrow = document.getElementById('bookings-arrow');
+                menu.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+            }
+
+            const onInventoryRoute = @json(request()->routeIs('admin.inventory.*'));
+            if (onInventoryRoute) {
+                const menu = document.getElementById('inventory-menu');
+                const arrow = document.getElementById('inventory-arrow');
                 menu.classList.remove('hidden');
                 arrow.style.transform = 'rotate(180deg)';
             }

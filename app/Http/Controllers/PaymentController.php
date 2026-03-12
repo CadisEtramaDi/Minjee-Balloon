@@ -24,8 +24,8 @@ class PaymentController extends Controller
         $booking = Booking::with('customer')->findOrFail($bookingId);
         
         // Check if booking is ready for payment
-        if (!in_array(strtolower($booking->status), ['confirmed', 'awaiting downpayment'])) {
-            return redirect()->back()->with('error', 'Booking must be approved (Awaiting Downpayment) or Confirmed before payment.');
+        if (!in_array(strtolower($booking->status), ['confirmed', 'awaiting downpayment', 'completed'])) {
+            return redirect()->back()->with('error', 'Booking must be approved (Awaiting Downpayment), Confirmed, or Completed before payment.');
         }
         
         // Calculate remaining balance
@@ -43,7 +43,8 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'amountpaid' => 'required|numeric|min:0|max:' . $booking->totalAmount,
             'paymentdate' => 'required|date',
-            'paymentmethod' => 'required|in:cash,gcash',
+            'paymentmethod' => 'required|in:cash,gcash,bank_transfer',
+            'reference_number' => 'nullable|string|max:255',
             'status' => 'required|in:completed,pending,failed',
         ]);
 
@@ -68,7 +69,7 @@ class PaymentController extends Controller
             $statusMessage = 'Payment recorded successfully!';
         }
 
-        return redirect()->route('admin.bookings.show', $bookingId)
+        return redirect()->route('admin.dashboard')
             ->with('success', $statusMessage);
     }
 
@@ -111,11 +112,19 @@ class PaymentController extends Controller
             ];
         });
 
+        // Group by date for line chart
+        $dailySales = $payments->groupBy(function ($payment) {
+            return $payment->paymentdate->format('Y-m-d');
+        })->map(function ($group) {
+            return $group->sum('amountpaid');
+        })->sortKeys();
+
         return view('admin.reports.sales', compact(
             'payments',
             'totalSales',
             'totalTransactions',
-            'salesByMethod'
+            'salesByMethod',
+            'dailySales'
         ));
     }
 }

@@ -16,7 +16,7 @@
     </a>
 </div>
 
-<div class="bg-white rounded-xl shadow-md p-8 max-w-3xl">
+<div class="bg-white rounded-xl shadow-md p-8 max-w-5xl  mx-auto">
     <form id="bookingForm" action="{{ route('admin.bookings.store') }}" method="POST" class="space-y-6">
         @csrf
         <input type="hidden" name="customerID" value="new">
@@ -122,7 +122,7 @@
 
         <div id="itemSelector" class="hidden mb-6 p-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg">
             <label class="block text-sm font-medium text-gray-700 mb-2">Select an item from Inventory:</label>
-            <select id="itemDropdown" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9]">
+            <select id="itemDropdown" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9]" onchange="updateMaxQty()">
                 <option value="">-- Choose an Item --</option>
                 @foreach($inventoryItems as $item)
                     @php $availableQty = $item->quantityAvailable - $item->quantityDamaged; @endphp
@@ -136,7 +136,15 @@
                     @endif
                 @endforeach
             </select>
-            <button type="button" onclick="addItemToBooking()" class="mt-2 w-full py-2 bg-gray-800 text-white rounded-lg text-sm">Add to List</button>
+            <div class="mt-3">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Quantity:</label>
+                <div class="flex items-center gap-3">
+                    <input type="number" id="itemQuantity" min="1" max="1" value="1" 
+                           class="w-28 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent">
+                    <span id="maxQtyHint" class="text-xs text-gray-500"></span>
+                </div>
+            </div>
+            <button type="button" onclick="addItemToBooking()" class="mt-3 w-full py-2 bg-gray-800 text-white rounded-lg text-sm">Add to List</button>
         </div>
 
         <div class="border border-gray-200 rounded-lg overflow-hidden">
@@ -161,34 +169,15 @@
 
         <!-- Payment Section -->
         <div class="border-b pb-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Amount & Status</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Amount</h3>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Total Amount (₱) *</label>
-                    <input type="number" id="totalAmount" name="totalAmount" required min="0" step="0.01" placeholder="0.00"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent @error('totalAmount') border-red-500 @enderror"
-                           value="{{ old('totalAmount') }}" readonly>
-                    @error('totalAmount')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
-                    <select name="status" required 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent @error('status') border-red-500 @enderror">
-                        <option value="">Select Status</option>
-                        <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="Awaiting Downpayment" {{ old('status') == 'Awaiting Downpayment' ? 'selected' : '' }}>Awaiting Downpayment</option>
-                        <option value="Confirmed" {{ old('status') == 'Confirmed' ? 'selected' : '' }}>Confirmed</option>
-                        <option value="Cancelled" {{ old('status') == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
-                        <option value="Completed" {{ old('status') == 'Completed' ? 'selected' : '' }}>Completed</option>
-                    </select>
-                    @error('status')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Total Amount (₱)</label>
+                <div id="totalAmountDisplay" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-lg font-bold text-gray-900">₱0.00</div>
+                <input type="hidden" id="totalAmount" name="totalAmount" value="0">
+                @error('totalAmount')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
         </div>
 
@@ -205,7 +194,7 @@
 </div>
 
 <!-- Confirmation Modal -->
-<div id="confirmationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div id="confirmationModal" class="hidden fixed inset-0 flex items-center justify-center z-50" style="background-color: rgba(0, 0, 0, 0.5);">
     <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4">
         <div class="bg-gradient-to-r from-[#0EA5E9] to-sky-600 px-6 py-4 rounded-t-lg">
             <h3 class="text-xl font-bold text-white">Confirm Booking</h3>
@@ -219,10 +208,7 @@
                     <span class="font-semibold">Total Amount:</span> 
                     <span class="text-blue-600 font-bold">₱<span id="modalTotalAmount">0.00</span></span>
                 </p>
-                <p class="text-sm text-gray-700 mt-2">
-                    <span class="font-semibold">Status:</span> 
-                    <span id="modalStatus">Pending</span>
-                </p>
+
             </div>
 
             <p class="text-xs text-gray-500">This action will create the booking and allocate the selected inventory items.</p>
@@ -246,10 +232,30 @@
         selector.classList.toggle('hidden');
     }
 
+    // Update max quantity hint when item is selected
+    function updateMaxQty() {
+        const dropdown = document.getElementById('itemDropdown');
+        const qtyInput = document.getElementById('itemQuantity');
+        const hint = document.getElementById('maxQtyHint');
+        const selectedOption = dropdown.options[dropdown.selectedIndex];
+
+        if (selectedOption.value) {
+            const max = parseInt(selectedOption.dataset.max);
+            qtyInput.max = max;
+            qtyInput.value = 1;
+            hint.textContent = `Max available: ${max}`;
+        } else {
+            qtyInput.max = 1;
+            qtyInput.value = 1;
+            hint.textContent = '';
+        }
+    }
+
     // 2. Add Item to the Table
     function addItemToBooking() {
         const dropdown = document.getElementById('itemDropdown');
         const selectedOption = dropdown.options[dropdown.selectedIndex];
+        const qtyInput = document.getElementById('itemQuantity');
         
         if (!selectedOption.value) {
             alert('Please select an item first.');
@@ -259,11 +265,16 @@
         const itemId = selectedOption.value;
         const itemName = selectedOption.dataset.name;
         const itemPrice = selectedOption.dataset.price;
-        const itemMax = selectedOption.dataset.max;
+        const itemMax = parseInt(selectedOption.dataset.max);
+        let qty = parseInt(qtyInput.value) || 1;
+
+        // Clamp quantity
+        if (qty < 1) qty = 1;
+        if (qty > itemMax) qty = itemMax;
 
         // Check if item already exists
         if (document.getElementById(`row-${itemId}`)) {
-            alert('Item already added! Just adjust the quantity in the table.');
+            alert('Item already added! Adjust the quantity in the table.');
             return;
         }
 
@@ -271,7 +282,9 @@
         const emptyRow = document.getElementById('emptyRow');
         if (emptyRow) emptyRow.remove();
 
-        // Create new row with matching IDs and Classes
+        const rowTotal = (qty * parseFloat(itemPrice)).toFixed(2);
+
+        // Create new row with the selected quantity
         const rowHTML = `
             <tr id="row-${itemId}" class="border-b border-gray-100">
                 <td class="py-3 px-4 font-medium text-gray-900">${itemName}</td>
@@ -279,10 +292,10 @@
                 <td class="py-3 px-4">
                     <input type="number" name="items[${itemId}]" 
                            class="quantity-input w-20 px-2 py-1 border border-gray-300 rounded-md" 
-                           value="1" min="1" max="${itemMax}" 
+                           value="${qty}" min="1" max="${itemMax}" 
                            data-price="${itemPrice}" oninput="calculateTotal()">
                 </td>
-                <td class="py-3 px-4 text-sm font-bold text-sky-600 row-total">₱${parseFloat(itemPrice).toFixed(2)}</td>
+                <td class="py-3 px-4 text-sm font-bold text-sky-600 row-total">₱${rowTotal}</td>
                 <td class="py-3 px-4 text-right">
                     <button type="button" onclick="removeRow('${itemId}')" class="text-red-500 hover:text-red-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -295,6 +308,9 @@
         calculateTotal();
         toggleItemSelector(); // Hide the selector after adding
         dropdown.selectedIndex = 0; // Reset dropdown
+        qtyInput.value = 1;
+        qtyInput.max = 1;
+        document.getElementById('maxQtyHint').textContent = '';
     }
 
     // 3. Remove Item from the Table
@@ -318,10 +334,10 @@
         let grandTotal = 0;
         const inputs = document.querySelectorAll('.quantity-input');
         
-        inputs.forEach(input => {
+        inputs.forEach(function(input) {
             const row = input.closest('tr');
             const qty = parseInt(input.value) || 0;
-            const price = parseFloat(input.dataset.price) || 0;
+            const price = parseFloat(input.getAttribute('data-price')) || 0;
             const rowTotal = qty * price;
             
             // Update individual row total display
@@ -331,23 +347,14 @@
             grandTotal += rowTotal;
         });
 
-        // Update Hidden/Main input and Modal display
-        const totalInput = document.getElementById('totalAmount');
-        const modalTotal = document.getElementById('modalTotalAmount');
-        
-        if (totalInput) totalInput.value = grandTotal.toFixed(2);
-        if (modalTotal) modalTotal.textContent = grandTotal.toFixed(2);
+        // Update display, hidden input, and modal
+        document.getElementById('totalAmountDisplay').textContent = '₱' + grandTotal.toFixed(2);
+        document.getElementById('totalAmount').value = grandTotal.toFixed(2);
+        document.getElementById('modalTotalAmount').textContent = grandTotal.toFixed(2);
     }
 
     // 5. Modal Controls
     function openConfirmationModal() {
-        // Sync the status dropdown value to the modal text
-        const statusSelect = document.querySelector('select[name="status"]');
-        const modalStatus = document.getElementById('modalStatus');
-        if (statusSelect && modalStatus) {
-            modalStatus.textContent = statusSelect.value || 'Pending';
-        }
-        
         document.getElementById('confirmationModal').classList.remove('hidden');
     }
 

@@ -58,11 +58,12 @@
             <div class="bg-gradient-to-r from-[#0EA5E9] to-sky-500 px-6 py-4 flex justify-between items-center">
                 <h2 class="text-2xl font-bold text-white">Booking #{{ $booking->bookingID }}</h2>
                 <span class="px-4 py-2 rounded-full text-sm font-semibold
-                    {{ $booking->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                    {{ $booking->status === 'confirmed' ? 'bg-green-100 text-green-800' : '' }}
-                    {{ $booking->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}
-                    {{ $booking->status === 'paid' ? 'bg-blue-100 text-blue-800' : '' }}">
-                    {{ ucfirst($booking->status) }}
+                    {{ $booking->status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                    {{ $booking->status === 'Awaiting Downpayment' ? 'bg-orange-100 text-orange-800' : '' }}
+                    {{ $booking->status === 'Confirmed' ? 'bg-green-100 text-green-800' : '' }}
+                    {{ $booking->status === 'Cancelled' ? 'bg-red-100 text-red-800' : '' }}
+                    {{ $booking->status === 'Completed' ? 'bg-blue-100 text-blue-800' : '' }}">
+                    {{ $booking->status }}
                 </span>
             </div>
             
@@ -301,7 +302,7 @@
                 </form>
                 @endif
 
-                @if($booking->status === 'pending')
+                @if($booking->status === 'Pending')
                     <div style="background-color: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px; text-align: center;">
                         <p style="color: #1e40af; font-size: 14px; font-weight: 500; margin: 0;">
                             📋 Approve booking to unlock payment actions
@@ -312,7 +313,6 @@
         </div>
 
         <!-- Status Update -->
-        @if($booking->status !== 'pending')
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
             <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900">Update Status</h3>
@@ -325,11 +325,9 @@
                     <div class="mb-4">
                         <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Change Status</label>
                         <select name="status" id="status" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0EA5E9] focus:border-transparent transition-all" required>
-                            <option value="pending" {{ $booking->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="Awaiting Downpayment" {{ $booking->status === 'Awaiting Downpayment' ? 'selected' : '' }}>Awaiting Downpayment</option>
-                            <option value="confirmed" {{ $booking->status === 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                            <option value="cancelled" {{ $booking->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                            <option value="paid" {{ $booking->status === 'paid' ? 'selected' : '' }}>Paid</option>
+                            <option value="Pending" {{ $booking->status === 'Pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="Completed" {{ $booking->status === 'Completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="Partial" {{ $booking->status === 'Partial' ? 'selected' : '' }}>Partial</option>
                         </select>
                     </div>
 
@@ -342,7 +340,6 @@
                 </form>
             </div>
         </div>
-        @endif
 
         <!-- Event Countdown -->
         <div class="bg-gradient-to-br from-[#0EA5E9] to-sky-500 rounded-xl shadow-md overflow-hidden text-white">

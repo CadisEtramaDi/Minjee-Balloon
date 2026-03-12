@@ -78,6 +78,16 @@
     </div>
 </div>
 
+<!-- Sales Trend Line Chart -->
+@if($dailySales->count() > 0)
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <h2 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Sales Trend</h2>
+    <div style="position: relative; height: 300px;">
+        <canvas id="salesTrendChart"></canvas>
+    </div>
+</div>
+@endif
+
 <!-- Sales by Payment Method -->
 @if($salesByMethod->count() > 0)
 <div class="bg-white rounded-xl shadow-md p-6 mb-6">
@@ -176,4 +186,73 @@
     }
 }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+@if(isset($dailySales) && $dailySales->count() > 0)
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('salesTrendChart').getContext('2d');
+    const labels = @json($dailySales->keys()->map(function($date) { return \Carbon\Carbon::parse($date)->format('M d, Y'); })->values());
+    const data = @json($dailySales->values());
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Daily Sales (₱)',
+                data: data,
+                borderColor: '#0EA5E9',
+                backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.3,
+                pointBackgroundColor: '#0EA5E9',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        font: { size: 13, weight: 'bold' },
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return '₱' + context.parsed.y.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₱' + value.toLocaleString();
+                        },
+                        font: { size: 12 }
+                    },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    ticks: { font: { size: 11 }, maxRotation: 45 },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+});
+</script>
+@endif
 @endsection
