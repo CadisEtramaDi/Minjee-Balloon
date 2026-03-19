@@ -1,0 +1,21 @@
+INSTRUCTIONS TO ADD BALLOON BACKGROUND IMAGE
+=============================================
+
+Please follow these steps:
+
+1. Save the balloon image you provided to:
+   c:\Users\Francis John\Desktop\HTML\IT12\Minjee Ballon\public\images\balloon-background.jpg
+
+2. Make sure the image is named exactly: balloon-background.jpg
+
+3. The homepage has been updated to use this background image automatically.
+
+4. After saving the image, refresh your browser to see the beautiful balloon background!
+
+The code has been updated to:
+- Display the balloon background image
+- Add a white gradient overlay for better text readability
+- Maintain all the existing functionality
+
+If you need to adjust the overlay opacity or styling, you can edit:
+resources/views/home.blade.php

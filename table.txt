@@ -1,0 +1,20 @@
+CREATE TABLE `inventory_transactions` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `itemID` bigint(20) unsigned NOT NULL,
+  `bookingID` bigint(20) unsigned DEFAULT NULL,
+  `type` enum('stock_in','stock_out','damage','restore') NOT NULL,
+  `transaction_reason` enum('booking_reserve','booking_start','booking_return','booking_cancel','damage_report','stock_correction','stock_in','stock_out','restore') NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `available_before` int(11) NOT NULL,
+  `available_after` int(11) NOT NULL,
+  `damaged_before` int(11) DEFAULT NULL,
+  `damaged_after` int(11) DEFAULT NULL,
+  `notes` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `inventory_transactions_itemid_foreign` (`itemID`),
+  KEY `inventory_transactions_bookingid_foreign` (`bookingID`),
+  CONSTRAINT `inventory_transactions_bookingid_foreign` FOREIGN KEY (`bookingID`) REFERENCES `bookings` (`bookingID`) ON DELETE SET NULL,
+  CONSTRAINT `inventory_transactions_itemid_foreign` FOREIGN KEY (`itemID`) REFERENCES `inventory` (`itemID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
