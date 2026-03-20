@@ -332,6 +332,7 @@ class BookingController extends Controller
     public function index()
     {
         $bookings = Booking::with('customer', 'paymentSchedules')
+            ->latest()
             ->paginate(20);
 
         $statusSummary = [
