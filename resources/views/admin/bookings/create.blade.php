@@ -3,7 +3,7 @@
 @section('title', 'Create New Booking')
 
 @section('content')
-<div class="mb-8 flex items-center justify-between">
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Create New Booking</h1>
         <p class="text-gray-600">Register a new customer booking</p>
@@ -16,7 +16,7 @@
     </a>
 </div>
 
-<div class="bg-white rounded-xl shadow-md p-8 max-w-5xl  mx-auto">
+<div class="bg-white rounded-xl shadow-md p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
     <form id="bookingForm" action="{{ route('admin.bookings.store') }}" method="POST" class="space-y-6">
         @csrf
         <input type="hidden" name="customerID" value="new">
@@ -147,8 +147,8 @@
             <button type="button" onclick="addItemToBooking()" class="mt-3 w-full py-2 bg-gray-800 text-white rounded-lg text-sm">Add to List</button>
         </div>
 
-        <div class="border border-gray-200 rounded-lg overflow-hidden">
-            <table class="w-full" id="selectedItemsTable">
+        <div class="border border-gray-200 rounded-lg overflow-hidden overflow-x-auto">
+            <table class="w-full min-w-[500px]" id="selectedItemsTable">
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="text-left py-3 px-4 text-xs uppercase text-gray-600">Item</th>
@@ -182,7 +182,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex gap-3 justify-end">
+        <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
             <a href="{{ route('admin.bookings.index') }}" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
                 Cancel
             </a>

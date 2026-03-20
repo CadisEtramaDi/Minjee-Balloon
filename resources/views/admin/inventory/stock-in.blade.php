@@ -3,7 +3,7 @@
 @section('title', 'Stock In')
 
 @section('content')
-<div class="mb-8 flex items-center justify-between">
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Stock In</h1>
         <p class="text-gray-600">Add stock to existing items or create new inventory items</p>
@@ -55,7 +55,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <button type="submit" style="padding: 5px 14px; background-color: #22c55e; color: #ffffff; border-radius: 6px; font-weight: 600; font-size: 13px; border: none; cursor: pointer;">
+                    <button type="submit" class="inline-flex items-center px-3.5 py-1.5 bg-green-500 text-white rounded-md font-semibold text-sm hover:bg-green-600 transition-colors cursor-pointer border-none">
                         <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
@@ -102,7 +102,7 @@
                     @enderror
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
                         <input type="number" name="quantityAvailable" min="1" required placeholder="e.g., 20"
@@ -134,7 +134,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <button type="submit" style="padding: 5px 14px; background-color: #3b82f6; color: #ffffff; border-radius: 6px; font-weight: 600; font-size: 13px; border: none; cursor: pointer;">
+                    <button type="submit" class="inline-flex items-center px-3.5 py-1.5 bg-blue-500 text-white rounded-md font-semibold text-sm hover:bg-blue-600 transition-colors cursor-pointer border-none">
                         <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
@@ -161,7 +161,7 @@
 
     @if($transactions->isNotEmpty())
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table class="w-full min-w-[750px]">
                 <thead class="bg-gray-100">
                     <tr>
                         <th class="text-left py-3 px-4 font-semibold text-gray-600 text-xs uppercase tracking-wide">Date</th>

@@ -3,12 +3,12 @@
 @section('title', 'Inventory Item - ' . $item->itemName)
 
 @section('content')
-<div class="mb-8 flex items-center justify-between">
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Inventory Item</h1>
         <p class="text-gray-600">View item details and rental history</p>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex flex-wrap items-center gap-2">
         <a href="{{ route('admin.inventory.edit', $item->itemID) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm font-semibold">
             Edit Item
         </a>
@@ -38,7 +38,7 @@
         
         
         @if($item->status !== 'Unavailable')
-        <form method="POST" action="{{ route('admin.inventory.update-status', $item->itemID) }}" style="display:inline;">
+        <form method="POST" action="{{ route('admin.inventory.update-status', $item->itemID) }}" class="inline">
             @csrf
             @method('PUT')
             <input type="hidden" name="status" value="Unavailable">
@@ -49,7 +49,7 @@
         @endif
         
         @if($item->status !== 'Available')
-        <form method="POST" action="{{ route('admin.inventory.update-status', $item->itemID) }}" style="display:inline;">
+        <form method="POST" action="{{ route('admin.inventory.update-status', $item->itemID) }}" class="inline">
             @csrf
             @method('PUT')
             <input type="hidden" name="status" value="Available">
@@ -144,7 +144,7 @@
 
             @if($item->bookingItems->count() > 0)
                 <div class="overflow-x-auto">
-                    <table class="w-full">
+                    <table class="w-full min-w-[650px]">
                         <thead class="bg-gray-100">
                             <tr>
                                 <th class="text-left py-3 px-4 font-semibold text-gray-600 text-xs uppercase tracking-wide">Booking ID</th>

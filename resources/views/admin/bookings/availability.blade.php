@@ -2,7 +2,7 @@
 @section('title', 'Check Availability - ')
 
 @section('content')
-<div class="mb-6 flex justify-between items-center">
+<div class="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
     <div>
         <h1 class="text-2xl font-bold text-gray-800">Check Availability</h1>
         <p class="text-gray-600">View and manage booking schedules</p>

@@ -3,12 +3,12 @@
 @section('title', 'Manage Bookings')
 
 @section('content')
-<div class="mb-8 flex items-center justify-between">
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Manage Bookings</h1>
         <p class="text-gray-600">View and manage all customer bookings</p>
     </div>
-    <div class="flex gap-3">
+    <div class="flex flex-wrap gap-3">
         <a href="{{ route('admin.availability.check') }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
             Check Availability
         </a>
@@ -52,7 +52,7 @@
 <div class="bg-white rounded-xl shadow-md overflow-hidden">
     @if($bookings->count() > 0)
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table class="w-full min-w-[800px]">
                 <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                     <tr>
                         <th class="text-left py-4 px-6 font-semibold text-gray-700 text-sm uppercase tracking-wider">ID</th>
@@ -119,8 +119,7 @@
                                         View
                                     </a>
                                     <a href="{{ route('admin.bookings.edit', $booking->bookingID) }}" 
-                                       class="inline-flex items-center px-4 py-2 text-sm rounded-lg transition-colors font-medium shadow-sm"
-                                       style="background-color: #f59e0b; color: #ffffff;">
+                                       class="inline-flex items-center px-4 py-2 text-sm rounded-lg transition-colors font-medium shadow-sm bg-amber-500 text-white hover:bg-amber-600">
                                         Edit
                                     </a>
                                 </div>

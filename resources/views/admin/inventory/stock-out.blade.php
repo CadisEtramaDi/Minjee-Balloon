@@ -3,7 +3,7 @@
 @section('title', 'Stock Out')
 
 @section('content')
-<div class="mb-8 flex items-center justify-between">
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Stock Out</h1>
         <p class="text-gray-600">Mark items as damaged or write off inventory</p>
@@ -76,19 +76,19 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Reason *</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; border: 1px solid #d1d5db; border-radius: 8px; padding: 14px; transition: border-color 0.2s;">
-                            <input type="radio" name="reason" value="damaged" style="margin-top: 2px;" {{ old('reason', 'damaged') == 'damaged' ? 'checked' : '' }}>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="flex items-start gap-2.5 cursor-pointer border border-gray-300 rounded-lg p-3.5 transition-colors hover:border-gray-400">
+                            <input type="radio" name="reason" value="damaged" class="mt-0.5" {{ old('reason', 'damaged') == 'damaged' ? 'checked' : '' }}>
                             <div>
-                                <span style="font-size: 14px; font-weight: 600; color: #111827; display: block;">Damaged</span>
-                                <span style="font-size: 12px; color: #6b7280; margin-top: 4px; display: block;">Item is broken but kept in inventory count</span>
+                                <span class="text-sm font-semibold text-gray-900 block">Damaged</span>
+                                <span class="text-xs text-gray-500 mt-1 block">Item is broken but kept in inventory count</span>
                             </div>
                         </label>
-                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; border: 1px solid #d1d5db; border-radius: 8px; padding: 14px; transition: border-color 0.2s;">
-                            <input type="radio" name="reason" value="write_off" style="margin-top: 2px;" {{ old('reason') == 'write_off' ? 'checked' : '' }}>
+                        <label class="flex items-start gap-2.5 cursor-pointer border border-gray-300 rounded-lg p-3.5 transition-colors hover:border-gray-400">
+                            <input type="radio" name="reason" value="write_off" class="mt-0.5" {{ old('reason') == 'write_off' ? 'checked' : '' }}>
                             <div>
-                                <span style="font-size: 14px; font-weight: 600; color: #111827; display: block;">Write Off</span>
-                                <span style="font-size: 12px; color: #6b7280; margin-top: 4px; display: block;">Permanently remove from total inventory</span>
+                                <span class="text-sm font-semibold text-gray-900 block">Write Off</span>
+                                <span class="text-xs text-gray-500 mt-1 block">Permanently remove from total inventory</span>
                             </div>
                         </label>
                     </div>
@@ -98,9 +98,9 @@
                 </div>
 
                 <div class="flex justify-end pt-2">
-                    <button type="submit" style="padding: 5px 14px; background-color: #ef4444; color: #ffffff; border-radius: 6px; font-weight: 600; font-size: 13px; border: none; cursor: pointer;"
+                    <button type="submit" class="inline-flex items-center px-3.5 py-1.5 bg-red-500 text-white rounded-md font-semibold text-sm hover:bg-red-600 transition-colors cursor-pointer border-none"
                             onclick="return confirm('Are you sure you want to stock out these items?')">
-                        <svg style="width: 12px; height: 12px; display: inline; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                         </svg>
                         Confirm Stock Out

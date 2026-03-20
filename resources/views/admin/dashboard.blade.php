@@ -121,7 +121,7 @@
     
     @if($recentBookings->count() > 0)
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table class="w-full min-w-[700px]">
                 <thead>
                     <tr class="border-b border-gray-200">
                         <th class="text-left py-3 px-4 font-semibold text-gray-700">ID</th>
@@ -160,17 +160,16 @@
                                     $totalAmount = $booking->totalAmount;
                                 @endphp
                                 @if($totalAmount > 0 && $totalPaid >= $totalAmount)
-                                    <span style="display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background-color: #dcfce7; color: #166534;">Full</span>
+                                    <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">Full</span>
                                 @elseif($totalPaid > 0)
-                                    <span style="display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background-color: #ffedd5; color: #9a3412;">Partial</span>
+                                    <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">Partial</span>
                                 @else
-                                    <span style="display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background-color: #f3f4f6; color: #4b5563;">Unpaid</span>
+                                    <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">Unpaid</span>
                                 @endif
                             </td>
                             <td class="py-3 px-4">
                                 <a href="{{ route('admin.bookings.show', $booking->bookingID) }}" 
-                                   class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors"
-                                   style="background-color: #2563eb; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; text-decoration: none; display: inline-block;">
+                                   class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors">
                                     View
                                 </a>
                             </td>

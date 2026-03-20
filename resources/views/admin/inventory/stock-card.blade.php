@@ -3,7 +3,7 @@
 @section('title', 'Stock Card - ' . $item->itemName)
 
 @section('content')
-<div class="mb-8 flex items-center justify-between">
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Stock Card</h1>
         <p class="text-gray-600">History of stock changes for <span class="font-semibold">{{ $item->itemName }}</span></p>
@@ -63,7 +63,7 @@
 
     @if($transactions->count() > 0)
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table class="w-full min-w-[900px]">
                 <thead class="bg-gray-100">
                     <tr>
                         <th class="text-left py-3 px-4 font-semibold text-gray-600 text-xs uppercase tracking-wide">Date</th>

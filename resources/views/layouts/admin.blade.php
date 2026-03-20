@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%;">
+<html lang="en" class="h-full">
 
 <head>
     <meta charset="UTF-8">
@@ -8,24 +8,42 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gray-200" style="height: 100vh; margin: 0; display: flex; flex-direction: column; overflow: hidden;">
+<body class="bg-gray-200 h-screen m-0 flex flex-col overflow-hidden">
     <!-- Top Navigation -->
-    <nav class="z-50 w-full bg-white shadow-md border-b border-gray-200" style="flex-shrink: 0;">
+    <nav class="z-50 w-full bg-white shadow-md border-b border-gray-200 flex-shrink-0">
         <div class="w-full px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <a href="{{ route('admin.dashboard') }}" class="text-2xl font-bold text-[#0EA5E9]">
+                    <!-- Hamburger Menu Button (mobile/tablet) -->
+                    <button type="button" onclick="toggleMobileSidebar()" class="lg:hidden mr-3 p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" aria-label="Toggle sidebar">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <a href="{{ route('admin.dashboard') }}" class="text-xl sm:text-2xl font-bold text-[#0EA5E9]">
                         Minjee Balloon Admin
                     </a>
                 </div>
-                <!-- Empty placeholder for flex layout if needed, or just removed -->
             </div>
     </nav>
 
     <!-- Main Content -->
-    <div style="display: flex; flex: 1 1 0%; min-height: 0; overflow: hidden;">
+    <div class="flex flex-1 min-h-0 overflow-hidden">
+        <!-- Mobile Sidebar Backdrop -->
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="toggleMobileSidebar()"></div>
+
         <!-- Sidebar -->
-        <aside class="w-64 bg-gray-50 shadow-md p-6 z-40 flex flex-col" style="flex-shrink: 0; overflow-y: auto;">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-50 shadow-md p-6 flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:flex-shrink-0 lg:h-full overflow-y-auto">
+            <!-- Mobile close button -->
+            <div class="flex items-center justify-between mb-4 lg:hidden">
+                <span class="text-lg font-bold text-[#0EA5E9]">Menu</span>
+                <button type="button" onclick="toggleMobileSidebar()" class="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors" aria-label="Close sidebar">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
             <nav class="space-y-2 flex-grow">
                 <a href="{{ route('admin.dashboard') }}"
                     class="flex items-center px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-sky-100 text-[#0EA5E9]' : 'text-gray-700 hover:bg-gray-100' }}">
@@ -167,7 +185,7 @@
         </aside>
 
         <!-- Content Area -->
-        <main class="p-8" style="flex: 1 1 0%; overflow-y: auto; min-height: 0;">
+        <main class="flex-1 overflow-y-auto min-h-0 p-4 md:p-6 lg:p-8">
             @if(session('success'))
                 <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg">
                     <p class="text-green-700">{{ session('success') }}</p>
@@ -185,6 +203,16 @@
     </div>
 
     <script>
+        // Mobile Sidebar Toggle
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+            document.body.classList.toggle('overflow-hidden');
+        }
+
         function toggleBookingsMenu() {
             const menu = document.getElementById('bookings-menu');
             const arrow = document.getElementById('bookings-arrow');

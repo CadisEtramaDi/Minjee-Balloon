@@ -29,7 +29,7 @@
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
             @if($items->count() > 0)
                 <div class="overflow-x-auto">
-                    <table class="w-full">
+                    <table class="w-full min-w-[750px]">
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
                                 <th class="text-left py-3 px-4 font-semibold text-gray-600 text-xs uppercase tracking-wide">Item</th>
@@ -74,7 +74,7 @@
                                     </td>
                                     <td class="py-3 px-4">
                                         <a href="{{ route('admin.inventory.show', $item->itemID) }}" 
-                                           style="display: inline-block; padding: 5px 14px; background-color: #0EA5E9; color: #ffffff; border-radius: 6px; font-weight: 600; font-size: 13px; text-decoration: none;">
+                                           class="inline-block px-3.5 py-1.5 bg-[#0EA5E9] text-white rounded-md font-semibold text-sm hover:bg-sky-600 transition-colors">
                                             View
                                         </a>
                                     </td>

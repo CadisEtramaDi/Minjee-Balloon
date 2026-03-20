@@ -225,32 +225,32 @@
             </div>
             <div class="p-4 space-y-3">
                 <a href="{{ route('admin.bookings.show', $booking->bookingID) }}" 
-                   style="display: block; width: 100%; padding: 12px 16px; background-color: #6b7280; color: white; border-radius: 8px; font-weight: 600; text-align: center; text-decoration: none;">
+                   class="block w-full px-4 py-3 bg-gray-500 text-white rounded-lg font-semibold text-center hover:bg-gray-600 transition-colors">
                     📄 View Summary
                 </a>
 
                 @if(in_array($booking->status, ['Awaiting Downpayment', 'Confirmed', 'Completed']))
                     <a href="{{ route('admin.payments.create', $booking->bookingID) }}" 
-                       style="display: block; width: 100%; padding: 12px 16px; background-color: #0EA5E9; color: white; border-radius: 8px; font-weight: 600; text-align: center; text-decoration: none;">
+                       class="block w-full px-4 py-3 bg-[#0EA5E9] text-white rounded-lg font-semibold text-center hover:bg-sky-600 transition-colors">
                         💰 Add Payment
                     </a>
                 @endif
 
                 <a href="tel:{{ $booking->customer->phonenumber ?? '' }}" 
-                   style="display: block; width: 100%; padding: 12px 16px; background-color: #16a34a; color: white; border-radius: 8px; font-weight: 600; text-align: center; text-decoration: none;">
+                   class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg font-semibold text-center hover:bg-green-700 transition-colors">
                     📞 Call Customer
                 </a>
 
                 @if(in_array($booking->status, ['Confirmed', 'In-Use']))
                     <a href="{{ route('admin.bookings.show', $booking->bookingID) }}" 
-                       style="display: block; width: 100%; padding: 12px 16px; background-color: #9333ea; color: white; border-radius: 8px; font-weight: 600; text-align: center; text-decoration: none;">
+                       class="block w-full px-4 py-3 bg-purple-600 text-white rounded-lg font-semibold text-center hover:bg-purple-700 transition-colors">
                         📦 Process Items & Rentals
                     </a>
                 @endif
 
                 @if($booking->status === 'Pending')
-                    <div style="background-color: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px; text-align: center;">
-                        <p style="color: #1e40af; font-size: 14px; font-weight: 500; margin: 0;">
+                    <div class="bg-blue-100 border border-blue-300 rounded-lg p-3 text-center">
+                        <p class="text-blue-800 text-sm font-medium">
                             📋 Approve booking to unlock payment actions
                         </p>
                     </div>

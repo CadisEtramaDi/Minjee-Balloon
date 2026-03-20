@@ -3,7 +3,7 @@
 @section('title', 'Booking Summary')
 
 @section('content')
-<div class="mb-6 flex items-center justify-between">
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <a href="{{ route('admin.bookings.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -347,7 +347,7 @@
                                 <span class="bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm">Total Qty: {{ $item->quantity }}</span>
                             </div>
 
-                            <div class="grid grid-cols-3 gap-3 mb-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-700 mb-1">✅ Good Qty</label>
                                     <input type="number" name="returned_items[{{ $item->bookingItemID }}][qty_good]" 
@@ -555,7 +555,7 @@
                 </h3>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="w-full min-w-[650px]">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
                             <th class="text-left py-3 px-6 text-sm font-semibold text-gray-700">Payment ID</th>

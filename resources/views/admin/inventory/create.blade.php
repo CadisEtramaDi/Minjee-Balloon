@@ -3,7 +3,7 @@
 @section('title', 'Add Inventory Item')
 
 @section('content')
-<div class="mb-8 flex items-center justify-between">
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
         <h1 class="text-3xl font-bold text-gray-900 mb-2">Add Inventory Item</h1>
         <p class="text-gray-600">Create a new inventory record</p>
@@ -16,7 +16,7 @@
     </a>
 </div>
 
-<div class="bg-white rounded-xl shadow-md p-8 max-w-3xl">
+<div class="bg-white rounded-xl shadow-md p-4 sm:p-6 lg:p-8 max-w-3xl">
     <form action="{{ route('admin.inventory.store') }}" method="POST" class="space-y-6">
         @csrf
 
@@ -87,7 +87,7 @@
             </div>
         </div>
 
-        <div class="flex gap-3 justify-end">
+        <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
             <a href="{{ route('admin.inventory.index') }}" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
                 Cancel
             </a>
