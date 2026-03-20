@@ -4,7 +4,7 @@
 <div class="mb-6">
     <div class="flex justify-between items-center">
         <h1 style="color: #111827; font-size: 1.875rem; font-weight: 700;">Sales Report</h1>
-        <div class="flex gap-2">
+        <div class="flex gap-2 no-print">
             <a href="{{ route('admin.payments.index') }}" class="px-4 py-2 rounded-lg font-medium" style="background-color: #4b5563; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1.25rem; height: 1.25rem;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -21,8 +21,18 @@
     </div>
 </div>
 
+<!-- Print-Only Filter Summary (hidden on screen, visible on print) -->
+<div class="print-only-filters" style="display: none;">
+    <p style="font-size: 0.875rem; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; margin-bottom: 1rem;">
+        <strong>Filters Applied:</strong>
+        Date Range: {{ request('start_date') ?: 'All' }} to {{ request('end_date') ?: 'All' }}
+        &nbsp;|&nbsp;
+        Payment Method: {{ request('payment_method') ? ucfirst(str_replace('_', ' ', request('payment_method'))) : 'All Methods' }}
+    </p>
+</div>
+
 <!-- Filter Form -->
-<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+<div class="bg-white rounded-xl shadow-md p-6 mb-6 no-print">
     <h2 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Filter Report</h2>
     <form method="GET" action="{{ route('admin.reports.sales') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
@@ -64,23 +74,23 @@
 
 <!-- Summary Cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg p-6" style="background: linear-gradient(to right, #22c55e, #16a34a);">
-        <h3 style="color: white; font-weight: 600; margin-bottom: 0.5rem; font-size: 1.125rem;">Total Sales</h3>
-        <p style="color: white; font-size: 2.25rem; font-weight: 700;">₱{{ number_format($totalSales, 2) }}</p>
+    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg p-6 print-card" style="background: linear-gradient(to right, #22c55e, #16a34a);">
+        <h3 class="print-card-title" style="color: white; font-weight: 600; margin-bottom: 0.5rem; font-size: 1.125rem;">Total Sales</h3>
+        <p class="print-card-value" style="color: white; font-size: 2.25rem; font-weight: 700;">₱{{ number_format($totalSales, 2) }}</p>
     </div>
-    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-6" style="background: linear-gradient(to right, #3b82f6, #2563eb);">
-        <h3 style="color: white; font-weight: 600; margin-bottom: 0.5rem; font-size: 1.125rem;">Total Transactions</h3>
-        <p style="color: white; font-size: 2.25rem; font-weight: 700;">{{ $totalTransactions }}</p>
+    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 print-card" style="background: linear-gradient(to right, #3b82f6, #2563eb);">
+        <h3 class="print-card-title" style="color: white; font-weight: 600; margin-bottom: 0.5rem; font-size: 1.125rem;">Total Transactions</h3>
+        <p class="print-card-value" style="color: white; font-size: 2.25rem; font-weight: 700;">{{ $totalTransactions }}</p>
     </div>
-    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-6" style="background: linear-gradient(to right, #a855f7, #9333ea);">
-        <h3 style="color: white; font-weight: 600; margin-bottom: 0.5rem; font-size: 1.125rem;">Average Transaction</h3>
-        <p style="color: white; font-size: 2.25rem; font-weight: 700;">₱{{ $totalTransactions > 0 ? number_format($totalSales / $totalTransactions, 2) : '0.00' }}</p>
+    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 print-card" style="background: linear-gradient(to right, #a855f7, #9333ea);">
+        <h3 class="print-card-title" style="color: white; font-weight: 600; margin-bottom: 0.5rem; font-size: 1.125rem;">Average Transaction</h3>
+        <p class="print-card-value" style="color: white; font-size: 2.25rem; font-weight: 700;">₱{{ $totalTransactions > 0 ? number_format($totalSales / $totalTransactions, 2) : '0.00' }}</p>
     </div>
 </div>
 
 <!-- Sales Trend Line Chart -->
 @if($dailySales->count() > 0)
-<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+<div class="bg-white rounded-xl shadow-md p-6 mb-6 no-print">
     <h2 style="color: #111827; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Sales Trend</h2>
     <div style="position: relative; height: 300px;">
         <canvas id="salesTrendChart"></canvas>
@@ -177,12 +187,150 @@
 </div>
 
 <style>
+/* ===== PRINT STYLES ===== */
 @media print {
-    .flex.gap-2, nav, aside, button {
+    /* --- Hide interactive / non-essential elements --- */
+    .no-print,
+    nav,
+    aside,
+    button,
+    .fc-button,
+    canvas {
         display: none !important;
     }
-    body {
+
+    /* --- Show print-only filter summary --- */
+    .print-only-filters {
+        display: block !important;
+    }
+
+    /* --- General cleanup --- */
+    body,
+    main,
+    * {
+        color: #000 !important;
         background: white !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    body {
+        font-size: 11pt;
+        line-height: 1.4;
+        margin: 0;
+        padding: 0;
+    }
+
+    main {
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+    }
+
+    /* Remove layout constraints from admin wrapper */
+    body > div {
+        display: block !important;
+        overflow: visible !important;
+        height: auto !important;
+    }
+
+    /* --- Summary Cards: bordered black-text boxes --- */
+    .print-card {
+        background: white !important;
+        border: 2px solid #000 !important;
+        border-radius: 4px !important;
+        padding: 10px 14px !important;
+        break-inside: avoid;
+    }
+
+    .print-card .print-card-title {
+        color: #000 !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+    }
+
+    .print-card .print-card-value {
+        color: #000 !important;
+        font-size: 1.5rem !important;
+        font-weight: 700 !important;
+    }
+
+    /* --- Tables: full-width, light headers, no gradients --- */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    thead tr {
+        background: #f3f4f6 !important;
+        border-bottom: 2px solid #000 !important;
+    }
+
+    thead th {
+        color: #000 !important;
+        font-weight: 700 !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        padding: 8px 10px !important;
+    }
+
+    tbody tr {
+        border-bottom: 1px solid #d1d5db !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    tbody td {
+        padding: 6px 10px !important;
+        font-size: 0.8rem !important;
+    }
+
+    tfoot tr {
+        border-top: 2px solid #000 !important;
+        background: #f9fafb !important;
+    }
+
+    /* Payment method badges: plain text for print */
+    span.rounded-full,
+    span[style*="border-radius: 9999px"] {
+        background: transparent !important;
+        color: #000 !important;
+        padding: 0 !important;
+        font-weight: 600 !important;
+    }
+
+    /* Links: plain black text */
+    a {
+        color: #000 !important;
+        text-decoration: none !important;
+    }
+
+    /* Remove hover effects */
+    tr:hover {
+        background: transparent !important;
+    }
+
+    /* Container cards: no shadow / border-radius */
+    .bg-white.rounded-xl {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Reduce spacing */
+    .mb-6 {
+        margin-bottom: 0.75rem !important;
+    }
+
+    .p-6 {
+        padding: 0 !important;
+    }
+
+    /* Page setup */
+    @page {
+        margin: 1.5cm;
+        size: A4 portrait;
     }
 }
 </style>

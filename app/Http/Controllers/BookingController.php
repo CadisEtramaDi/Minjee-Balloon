@@ -523,6 +523,15 @@ class BookingController extends Controller
     }
 
     /**
+     * Show booking availability calendar (web)
+     * GET /admin/availability
+     */
+    public function availabilityPage()
+    {
+        return view('admin.bookings.availability');
+    }
+
+    /**
      * Check item availability (ajax)
      * GET /admin/check-availability
      */
@@ -565,6 +574,54 @@ class BookingController extends Controller
     // =========================================================================
     // API METHODS (return JSON)
     // =========================================================================
+
+    /**
+     * Get booking events for fullcalendar
+     * GET /api/availability/events
+     */
+    public function getCalendarEvents(Request $request)
+    {
+        $query = Booking::whereIn('status', ['Confirmed', 'In-Use', 'Pending'])
+            ->with('bookingItems.item', 'customer');
+
+        if ($request->has('start')) {
+            $query->where('eventDATE', '>=', date('Y-m-d', strtotime($request->start)));
+        }
+        if ($request->has('end')) {
+            $query->where('eventDATE', '<=', date('Y-m-d', strtotime($request->end)));
+        }
+
+        $bookings = $query->get();
+
+        $events = $bookings->map(function ($booking) {
+            $color = '#3b82f6'; // blue for Confirmed
+            if ($booking->status === 'In-Use') $color = '#22c55e'; // green
+            elseif ($booking->status === 'Pending') $color = '#f59e0b'; // amber
+
+            $itemsList = $booking->bookingItems->map(function ($bItem) {
+                return $bItem->quantity . 'x ' . ($bItem->item ? $bItem->item->itemName : 'Unknown');
+            })->toArray();
+
+            $dateStr = \Carbon\Carbon::parse($booking->eventDATE)->format('Y-m-d');
+            $startTime = $dateStr . 'T' . $booking->timeStart;
+            $endTime = $dateStr . 'T' . $booking->timeEND;
+
+            return [
+                'id' => $booking->bookingID,
+                'title' => 'Booking #' . $booking->bookingID . ' (' . count($itemsList) . ' Items)',
+                'start' => $startTime,
+                'end' => $endTime,
+                'color' => $color,
+                'extendedProps' => [
+                    'status' => $booking->status,
+                    'items' => $itemsList,
+                    'customerName' => $booking->customer ? ($booking->customer->fname . ' ' . $booking->customer->lname) : 'Unknown',
+                ]
+            ];
+        });
+
+        return response()->json($events);
+    }
 
     /**
      * Create a new booking (API)

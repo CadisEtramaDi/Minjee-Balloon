@@ -34,6 +34,7 @@ Route::prefix('admin')->group(function () {
         Route::post('/bookings/{id}/payment', [BookingController::class, 'recordPaymentWeb'])->name('admin.bookings.payment');
         Route::post('/bookings/{id}/start-rental', [BookingController::class, 'startRentalWeb'])->name('admin.bookings.start-rental');
         Route::post('/bookings/{id}/process-return', [BookingController::class, 'processReturnWeb'])->name('admin.bookings.process-return');
+        Route::get('/availability', [BookingController::class, 'availabilityPage'])->name('admin.availability.page');
         Route::get('/check-availability', [BookingController::class, 'checkAvailability'])->name('admin.availability.check');
 
         // ── Customers (Web) ───────────────────────────────────────────────
@@ -73,6 +74,7 @@ Route::prefix('admin')->group(function () {
             // Bookings
             Route::post('/bookings', [BookingController::class, 'store']);
             Route::get('/bookings', [BookingController::class, 'getByStatus']);
+            Route::get('/availability/events', [BookingController::class, 'getCalendarEvents']);
             Route::get('/bookings/{bookingID}', [BookingController::class, 'show']);
             Route::get('/bookings/{bookingID}/items', [BookingController::class, 'getBookingItems']);
             Route::get('/bookings/{bookingID}/pending-payments', [BookingController::class, 'getPendingPayments']);
